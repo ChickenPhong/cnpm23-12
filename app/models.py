@@ -22,7 +22,7 @@ class Khoi(RoleEnum):
 class MonHoc(db.Model):
     __tablename__ = 'monhoc'
     idMonHoc = Column(Integer, primary_key=True, autoincrement=True)
-    tenMonHoc = Column(String(50), nullable=False)
+    tenMonHoc = Column(String(50), unique=True, nullable=False)
     soCot15p = Column(Integer, nullable=False)
     soCot1Tiet = Column(Integer, nullable=False)
     soCotThi = Column(Integer, nullable=False)
@@ -30,6 +30,20 @@ class MonHoc(db.Model):
 
     def __str__(self):
         return self.tenMonHoc
+
+class HocKy(db.Model):
+    idHocKy = Column(Integer, primary_key=True, autoincrement=True)
+    namHoc = Column(String(20), nullable=False)
+    hocKy = Column(String(20), nullable=False)
+
+    def __str__(self):
+        return f"{self.namHoc} - {self.hocKy}"
+
+    def get_HocKy(self):
+        return self.hocKy
+
+    def get_NamHoc(self):
+        return self.namHoc
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'  # Tạo bảng User trong DB
@@ -74,7 +88,7 @@ class GiaoVien(User):
     __tablename__ = 'giaovien'  # Tạo bảng GiaoVien trong DB, không tạo bảng User
 
     id = Column(Integer, ForeignKey('users.id'), primary_key=True)  # Khóa ngoại trỏ tới bảng users
-    idMonHoc = Column(Integer, ForeignKey('monhoc.idMonHoc'), nullable=False)
+    idMonHoc = Column(Integer, ForeignKey('monhoc.idMonHoc'), nullable=True)
 
     monHoc = relationship('MonHoc', backref='giaovien')
 
@@ -82,27 +96,13 @@ class GiaoVienDayHoc(db.Model):
     __tablename__ = 'giao_vien_day_hoc'
     idGiaoVienDayHoc = Column(Integer, primary_key=True,autoincrement=True)
     idGiaoVien = Column(Integer, ForeignKey('giaovien.id'),nullable=True)
+    idHocKy = Column(Integer, ForeignKey(HocKy.idHocKy),nullable=True)
     idDsLop = Column(Integer, ForeignKey('danh_sach_lop.maDsLop', ondelete="CASCADE"), nullable=True)
 
     # Quan hệ với DanhSachLop
+    hoc_ky = relationship('HocKy', backref='giaoVienDayHoc')
     giaoVien = relationship(GiaoVien, backref="dayLop")
     lopDay = relationship('DanhSachLop', backref='giaoVienPhuTrach')
-
-
-
-class HocKy(db.Model):
-    idHocKy = Column(Integer, primary_key=True, autoincrement=True)
-    namHoc = Column(String(20), nullable=False)
-    hocKy = Column(String(20), nullable=False)
-
-    def __str__(self):
-        return f"{self.namHoc} - {self.hocKy}"
-
-    def get_HocKy(self):
-        return self.hocKy
-
-    def get_NamHoc(self):
-        return self.namHoc
 
 
 class HocSinh(db.Model):
@@ -122,13 +122,13 @@ class HocSinh(db.Model):
 class BangDiem(db.Model):
     __tablename__ = 'bang_diem'
 
-    idBangDiem = db.Column(db.Integer, primary_key=True)
-    hocSinh_id = db.Column(db.Integer, db.ForeignKey('hoc_sinh.idHocSinh'), nullable=False)
-    loai_diem = db.Column(db.String(20))  # Ví dụ: "15p", "1_tiet", "thi"
-    diem = db.Column(db.Float)
-    monHoc_id = db.Column(db.Integer, db.ForeignKey('monhoc.idMonHoc'), nullable=False)  # Môn học
-    giaoVien_id = db.Column(db.Integer, db.ForeignKey('giaovien.id'), nullable=False)  # Giáo viên
-    hocKy_id = db.Column(db.Integer, db.ForeignKey('hoc_ky.idHocKy'), nullable=False)  # Học kỳ
+    idBangDiem = Column(Integer, primary_key=True)
+    hocSinh_id = Column(Integer, ForeignKey('hoc_sinh.idHocSinh'), nullable=False)
+    loai_diem = Column(String(20))  # Ví dụ: "15p", "1_tiet", "thi"
+    diem = Column(Float)
+    monHoc_id = Column(Integer, ForeignKey('monhoc.idMonHoc'), nullable=False)  # Môn học
+    giaoVien_id = Column(Integer, ForeignKey('giaovien.id'), nullable=False)  # Giáo viên
+    hocKy_id = Column(Integer, ForeignKey('hoc_ky.idHocKy'), nullable=False)  # Học kỳ
 
     mon_hoc = relationship('MonHoc', backref='bang_diem')
     giao_vien = relationship('GiaoVien', backref='bang_diem')
@@ -137,10 +137,10 @@ class BangDiem(db.Model):
 class BangDiemTB(db.Model):
     __tablename__ = 'bang_diem_tb'
 
-    idBangDiemTB = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    hocSinh_id = db.Column(db.Integer, db.ForeignKey('hoc_sinh.idHocSinh'), nullable=False)
-    hocKy_id = db.Column(db.Integer, db.ForeignKey('hoc_ky.idHocKy'), nullable=False)
-    diem_trung_binh = db.Column(db.Float, nullable=False)
+    idBangDiemTB = Column(Integer, primary_key=True, autoincrement=True)
+    hocSinh_id = Column(Integer, ForeignKey('hoc_sinh.idHocSinh'), nullable=False)
+    hocKy_id = Column(Integer, ForeignKey('hoc_ky.idHocKy'), nullable=False)
+    diem_trung_binh = Column(Float, nullable=False)
 
     hoc_sinh = relationship('HocSinh', backref='bang_diem_tb')
     hoc_ky = relationship('HocKy', backref='bang_diem_tb')
@@ -164,8 +164,8 @@ class DanhSachLop(db.Model):
     tenLop = Column(String(50),unique=True,nullable=True)
     khoi = Column(String(50), nullable=False)
     giaoVienChuNhiem_id = Column(Integer, ForeignKey(GiaoVien.id), nullable=True)
-    siSoHienTai = db.Column(Integer, nullable=False)
-    siSo = db.Column(Integer, nullable=False)
+    siSoHienTai = Column(Integer, nullable=False)
+    siSo = Column(Integer, nullable=False)
     hocKy_id = Column(Integer, ForeignKey(HocKy.idHocKy), nullable=False)
     active = Column(Boolean, default=True)
 

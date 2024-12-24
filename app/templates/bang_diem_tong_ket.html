@@ -68,10 +68,36 @@
             color: red;
             font-weight: bold;
         }
+
+        .info-section {
+            margin-top: 20px;
+        }
+
+        .info-section p {
+            font-size: 16px;
+            margin: 5px 0;
+        }
+
+        /* Ẩn phần tử khi in */
+        @media print {
+            .back-button,
+            button {
+                display: none;
+            }
+
+            body {
+                background-color: white;
+            }
+
+            table th {
+                background-color: #4CAF50 !important; /* Bật màu nền khi in */
+                -webkit-print-color-adjust: exact; /* Đảm bảo in đúng màu */
+            }
+        }
     </style>
 </head>
 <body>
-    <a href="/giao-vien/{{taikhoan}}/lop-chu-nhiem">Quay lại</a>
+    <a href="/giao-vien/{{taikhoan}}/lop-chu-nhiem" class="back-button">Quay lại</a>
     <h1>Bảng Điểm Tổng Kết</h1>
 
     <!-- Thêm phần hiển thị thông báo -->
@@ -85,9 +111,13 @@
     {% endif %}
     {% endwith %}
 
-    <form method="POST" action="/xuat-bang-diem-tong-ket">
-        <button type="submit">Xuất Bảng Điểm</button>
-    </form>
+    <!-- Thông tin lớp và giáo viên chủ nhiệm -->
+    <div class="info-section">
+        <p><strong>Lớp:</strong> {{ lop.tenLop }}</p>
+        <p><strong>Giáo viên chủ nhiệm:</strong> {{ lop.giaoVienChuNhiem.hoTen }}</p>
+    </div>
+
+    <button onclick="window.print()">Xuất Bảng Điểm</button>
     <table>
         <thead>
             <tr>

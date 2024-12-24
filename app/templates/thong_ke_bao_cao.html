@@ -11,14 +11,25 @@
 </head>
 <body class="bg-light">
     <div class="container py-4">
+        <a href="/admin">Quay lại</a>
         <h1 class="text-center text-primary">Báo Cáo Tổng Kết Môn Học</h1>
         <form method="POST" action="/thong-ke-bao-cao" class="my-4 p-4 bg-white rounded shadow">
             <div class="row g-3 align-items-center">
                 <div class="col-md-4">
+                    <label for="khoiLop" class="form-label fw-bold">Chọn khối lớp:</label>
+                    <select name="khoiLop" id="khoiLop" class="form-select">
+                        <option value="Khối 10" {% if request.form.get('khoiLop') == 'Khối 10' %}selected{% endif %}>Khối 10</option>
+                        <option value="Khối 11" {% if request.form.get('khoiLop') == 'Khối 11' %}selected{% endif %}>Khối 11</option>
+                        <option value="Khối 12" {% if request.form.get('khoiLop') == 'Khối 12' %}selected{% endif %}>Khối 12</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
                     <label for="monHoc" class="form-label fw-bold">Chọn môn học:</label>
                     <select name="monHoc" id="monHoc" class="form-select">
                         {% for mon in danh_sach_mon_hoc %}
-                            <option value="{{ mon.idMonHoc }}">{{ mon.tenMonHoc }}</option>
+                            <option value="{{ mon.idMonHoc }}" {% if mon.idMonHoc == request.form.get('monHoc', '') | int %}selected{% endif %}>
+                                {{ mon.tenMonHoc }}
+                            </option>
                         {% endfor %}
                     </select>
                 </div>
@@ -26,7 +37,9 @@
                     <label for="hocKy" class="form-label fw-bold">Chọn học kỳ:</label>
                     <select name="hocKy" id="hocKy" class="form-select">
                         {% for hoc_ky in danh_sach_hoc_ky %}
-                            <option value="{{ hoc_ky.idHocKy }}">Học kỳ {{ hoc_ky.hocKy }} - {{ hoc_ky.namHoc }}</option>
+                            <option value="{{ hoc_ky.idHocKy }}" {% if hoc_ky.idHocKy == request.form.get('hocKy', 0) | int %}selected{% endif %}>
+                                Học kỳ {{ hoc_ky.hocKy }} - {{ hoc_ky.namHoc }}
+                            </option>
                         {% endfor %}
                     </select>
                 </div>

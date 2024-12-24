@@ -38,6 +38,28 @@ class GiaoVienView(ModelView):
 
         super(GiaoVienView, self).on_model_change(form, model, is_created)
 
+class NhanVienView(ModelView):
+    #form_columns = ['hoTen', 'gioiTinh', 'ngaySinh', 'diaChi', 'SDT', 'eMail', 'taiKhoan', 'matKhau', 'vaiTro']
+
+    def on_model_change(self, form, model, is_created):
+        if form.matKhau.data:
+            model.matKhau = hashlib.md5(form.matKhau.data.encode('utf-8')).hexdigest()
+
+        super(NhanVienView, self).on_model_change(form, model, is_created)
+
+class GiaoVienDayHocView(ModelView):
+    column_list = ['hoc_ky.namHoc', 'giaoVien', 'giaoVien.monHoc', 'lopDay']
+    column_labels = {
+        'hoc_ky.namHoc': 'Năm học',
+        'giaoVien': 'Giáo Viên',
+        'lopDay': 'Lớp',
+        'giaoVien.monHoc': 'Môn Học'
+    }
+
+    can_create = False  # Không cho phép thêm
+    can_delete = False  # Không cho phép xóa
+
+
 
 
     # def on_model_change(self, form, model, is_created):
@@ -70,9 +92,9 @@ class QuiDinhView(ModelView):
 admin.add_view(QuiDinhView(QuyDinh, db.session))
 admin.add_view(ModelView(MonHoc, db.session))
 admin.add_view(ModelView(PhongHoc, db.session))
-admin.add_view(ModelView(NhanVien, db.session))
+admin.add_view(NhanVienView(NhanVien, db.session))
 admin.add_view(GiaoVienView(GiaoVien, db.session))
-admin.add_view(ModelView(GiaoVienDayHoc, db.session))
+admin.add_view(GiaoVienDayHocView(GiaoVienDayHoc, db.session))
 admin.add_view(ModelView(HocSinh, db.session))
 admin.add_view(DanhSachLopView(DanhSachLop, db.session))
 

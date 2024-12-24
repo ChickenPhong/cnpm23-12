@@ -1,12 +1,11 @@
 from random import choice
 
-from flask import Flask, render_template, request, redirect, session, flash, url_for, jsonify, Response
-from sqlalchemy import Nullable, and_
+from flask import render_template, request, redirect, session, flash, url_for
+from sqlalchemy import and_
 from app import app, db, dao, login
 from datetime import date, datetime
 
-from app.admin import DanhSachLopView
-from app.models import NhanVien, HocSinh, UserRole, DanhSachLop, PhongHoc, HocKy, GiaoVienDayHoc, GiaoVien, MonHoc, BangDiem, BangDiemTB, QuyDinh
+from app.models import HocSinh, UserRole, DanhSachLop, PhongHoc, HocKy, GiaoVienDayHoc, GiaoVien, MonHoc, BangDiem, BangDiemTB, QuyDinh
 from flask_login import login_user, logout_user, current_user
 
 app.secret_key = 'secret_key'  # Khóa bảo mật cho session
@@ -327,6 +326,7 @@ def thong_ke_bao_cao():
     try:
         if request.method == 'POST':
             # Lấy thông tin từ form
+            khoi_lop = request.form.get('khoiLop')
             mon_hoc_id = request.form.get('monHoc')
             hoc_ky_id = request.form.get('hocKy')
 
@@ -336,23 +336,34 @@ def thong_ke_bao_cao():
                 return redirect('/thong-ke-bao-cao')
 
             # Lấy danh sách lớp
-            danh_sach_lop = DanhSachLop.query.all()
+            danh_sach_khoi_lop = DanhSachLop.query.filter_by(khoi=khoi_lop)
             data = []
 
-            for lop in danh_sach_lop:
+            for lop in danh_sach_khoi_lop:
                 # Tính sĩ số của lớp
-                si_so = HocSinh.query.filter(HocSinh.maDsLop == lop.maDsLop).count()
+                # si_so = HocSinh.query.filter(HocSinh.maDsLop == lop.maDsLop).count()
+
+                #Lấy danh sách học sinh từ lớp nhanh chóng
+                ds_hoc_sinh = lop.hocSinhs
+                si_so = len(ds_hoc_sinh)
+                so_luong_dat = 0
+                for hs in ds_hoc_sinh:
+                    diem_tb_mon = dao.tinh_diem_tb_mon(hs.idHocSinh,hoc_ky_id,mon_hoc_id)
+                    if diem_tb_mon is not None and diem_tb_mon>=5:
+                        so_luong_dat+=1
+
 
                 # Tính số lượng học sinh đạt
-                so_luong_dat = db.session.query(BangDiem.hocSinh_id).filter(
-                    BangDiem.monHoc_id == mon_hoc_id,
-                    BangDiem.hocKy_id == hoc_ky_id,
-                    BangDiem.diem >= 5,
-                    BangDiem.hocSinh_id.in_(
-                        HocSinh.query.with_entities(HocSinh.idHocSinh)
-                        .filter(HocSinh.maDsLop == lop.maDsLop)
-                    )
-                ).distinct().count()
+                # so_luong_dat = db.session.query(BangDiem.hocSinh_id).filter(
+                #     BangDiem.monHoc_id == mon_hoc_id,
+                #     BangDiem.hocKy_id == hoc_ky_id,
+                #     BangDiem.diem >= 5,
+                #     BangDiem.hocSinh_id.in_(
+                #         HocSinh.query.with_entities(HocSinh.idHocSinh)
+                #         .filter(HocSinh.maDsLop == lop.maDsLop)
+                #     )
+                # ).distinct().count()
+
 
                 # Tính tỷ lệ đạt
                 ty_le = round((so_luong_dat / si_so) * 100, 2) if si_so > 0 else 0
@@ -777,13 +788,16 @@ def xac_nhan_bang_diem():
 @app.route('/giao-vien/<taikhoan>/lop-chu-nhiem/bang-diem-tong-ket', methods=['GET'])
 def bang_diem_tong_ket(taikhoan):
 
-    lop_chu_nhiem = DanhSachLop.query.filter_by(giaoVienChuNhiem_id=current_user.id).first()
+    gv = GiaoVien.query.get(current_user.id)
+
+    # lop_chu_nhiem = DanhSachLop.query.filter_by(giaoVienChuNhiem_id=current_user.id).first()
+    lop_chu_nhiem = DanhSachLop.query.filter_by(giaoVienChuNhiem_id=gv.id).first()
     danh_sach_hoc_sinh = HocSinh.query.filter_by(maDsLop=lop_chu_nhiem.maDsLop).all()
 
     bang_diem_tong_ket = []
 
     for hs in danh_sach_hoc_sinh:
-        lop_hoc = DanhSachLop.query.get(hs.maDsLop)
+        # lop_hoc = DanhSachLop.query.get(hs.maDsLop)
 
         # Lấy điểm trung bình từ bảng bang_diem_TB
         diem_tb_hk1 = BangDiemTB.query.filter_by(hocSinh_id=hs.idHocSinh, hocKy_id=1).first()
@@ -791,7 +805,7 @@ def bang_diem_tong_ket(taikhoan):
 
         bang_diem_tong_ket.append({
             'ho_ten': hs.hoTen,
-            'lop': lop_hoc.tenLop if lop_hoc else "",
+            'lop': lop_chu_nhiem.tenLop if lop_chu_nhiem else "",
             'diem_tb_hk1': diem_tb_hk1.diem_trung_binh if diem_tb_hk1 else "",
             'diem_tb_hk2': diem_tb_hk2.diem_trung_binh if diem_tb_hk2 else "",
         })
@@ -799,50 +813,15 @@ def bang_diem_tong_ket(taikhoan):
     return render_template(
         'bang_diem_tong_ket.html',
         bang_diem_tong_ket=bang_diem_tong_ket,
+        lop=lop_chu_nhiem,
         enumerate=enumerate,
         taikhoan=taikhoan
     )
 
+@app.route('/ket-thuc-nam-hoc', methods=['POST'])
+def ket_thuc_nam_hoc():
 
-
-@app.route('/xuat-bang-diem-tong-ket', methods=['POST'])
-def xuat_bang_diem_tong_ket():
-    danh_sach_hoc_sinh = HocSinh.query.all()
-    bang_diem_tong_ket = []
-    thong_bao_loi = []
-
-    for hs in danh_sach_hoc_sinh:
-        lop_hoc = DanhSachLop.query.get(hs.maDsLop)
-        diem_tb_hk1 = tinh_diem_trung_binh(hs.idHocSinh, hoc_ky_id=1)
-        diem_tb_hk2 = tinh_diem_trung_binh(hs.idHocSinh, hoc_ky_id=2)
-
-        # Kiểm tra nếu học sinh nào chưa đủ điểm TB
-        if diem_tb_hk1 is None or diem_tb_hk2 is None:
-            thong_bao_loi.append(f"Học sinh {hs.hoTen} chưa đủ điểm trung bình HK1/HK2")
-
-        bang_diem_tong_ket.append({
-            'ho_ten': hs.hoTen,
-            'lop': lop_hoc.tenLop if lop_hoc else "",
-            'diem_tb_hk1': diem_tb_hk1 if diem_tb_hk1 is not None else "",
-            'diem_tb_hk2': diem_tb_hk2 if diem_tb_hk2 is not None else "",
-        })
-
-    # Nếu bất kỳ học sinh nào chưa đủ điểm, trả về thông báo lỗi
-    if thong_bao_loi:
-        flash("Chưa đủ điểm Trung Bình HK1/HK2. Không thể xuất bảng điểm!", "danger")
-        return redirect('/bang-diem-tong-ket')
-
-    # Tạo file CSV nếu tất cả học sinh đã đủ điểm
-    def generate_csv():
-        data = ["STT,Họ Tên,Lớp,Điểm TB HK1,Điểm TB HK2\n"]
-        for idx, diem in enumerate(bang_diem_tong_ket):
-            data.append(f"{idx + 1},{diem['ho_ten']},{diem['lop']},{diem['diem_tb_hk1']},{diem['diem_tb_hk2']}\n")
-        return data
-
-    response = Response(generate_csv(), mimetype='text/csv')
-    response.headers.set("Content-Disposition", "attachment", filename="bang_diem_tong_ket.csv")
-    return response
-
+    return redirect('/admin')
 
 if __name__ == '__main__':
     from app import admin

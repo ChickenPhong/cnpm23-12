@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.40, for Win64 (x86_64)
 --
--- Host: localhost    Database: manadb
+-- Host: 127.0.0.1    Database: manadb
 -- ------------------------------------------------------
 -- Server version	8.0.40
 
@@ -25,7 +25,7 @@ DROP TABLE IF EXISTS `bang_diem`;
 CREATE TABLE `bang_diem` (
   `idBangDiem` int NOT NULL AUTO_INCREMENT,
   `hocSinh_id` int NOT NULL,
-  `loai_diem` varchar(20) DEFAULT NULL,
+  `loai_diem` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `diem` float DEFAULT NULL,
   `monHoc_id` int NOT NULL,
   `giaoVien_id` int NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE `bang_diem` (
   CONSTRAINT `bang_diem_ibfk_2` FOREIGN KEY (`monHoc_id`) REFERENCES `monhoc` (`idMonHoc`),
   CONSTRAINT `bang_diem_ibfk_3` FOREIGN KEY (`giaoVien_id`) REFERENCES `giaovien` (`id`),
   CONSTRAINT `bang_diem_ibfk_4` FOREIGN KEY (`hocKy_id`) REFERENCES `hoc_ky` (`idHocKy`)
-) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -48,7 +48,6 @@ CREATE TABLE `bang_diem` (
 
 LOCK TABLES `bang_diem` WRITE;
 /*!40000 ALTER TABLE `bang_diem` DISABLE KEYS */;
-INSERT INTO `bang_diem` VALUES (1,1,'15p_1',8,3,7,1),(2,1,'15p_2',9,3,7,1),(3,1,'15p_3',7,3,7,1),(4,1,'1_tiet_1',8,3,7,1),(5,1,'1_tiet_2',8,3,7,1),(6,1,'thi',8.75,3,7,1),(7,2,'15p_1',8,3,7,1),(8,2,'15p_2',9,3,7,1),(9,2,'15p_3',6,3,7,1),(10,2,'1_tiet_1',7.5,3,7,1),(11,2,'1_tiet_2',8.5,3,7,1),(12,2,'thi',7.5,3,7,1),(13,1,'15p_1',6,1,4,1),(14,1,'15p_2',7,1,4,1),(15,1,'15p_3',9,1,4,1),(16,1,'15p_4',8,1,4,1),(17,1,'15p_5',7,1,4,1),(18,1,'1_tiet_1',9,1,4,1),(19,1,'1_tiet_2',9,1,4,1),(20,1,'1_tiet_3',9,1,4,1),(21,1,'thi',8.5,1,4,1),(22,2,'15p_1',6,1,4,1),(23,2,'15p_2',9,1,4,1),(24,2,'15p_3',9,1,4,1),(25,2,'15p_4',8.5,1,4,1),(26,2,'15p_5',7,1,4,1),(27,2,'1_tiet_1',9,1,4,1),(28,2,'1_tiet_2',9,1,4,1),(29,2,'1_tiet_3',9,1,4,1),(30,2,'thi',7.5,1,4,1),(31,1,'15p_1',5,2,6,1),(32,1,'15p_2',6,2,6,1),(33,1,'15p_3',7,2,6,1),(34,1,'15p_4',8,2,6,1),(35,1,'15p_5',9,2,6,1),(36,1,'1_tiet_1',8,2,6,1),(37,1,'1_tiet_2',6,2,6,1),(38,1,'1_tiet_3',9,2,6,1),(39,1,'thi',8,2,6,1),(40,2,'15p_1',6,2,6,1),(41,2,'15p_2',6,2,6,1),(42,2,'15p_3',8,2,6,1),(43,2,'15p_4',8,2,6,1),(44,2,'15p_5',9,2,6,1),(45,2,'1_tiet_1',8,2,6,1),(46,2,'1_tiet_2',6,2,6,1),(47,2,'1_tiet_3',9,2,6,1),(48,2,'thi',8,2,6,1);
 /*!40000 ALTER TABLE `bang_diem` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -69,7 +68,7 @@ CREATE TABLE `bang_diem_tb` (
   KEY `hocKy_id` (`hocKy_id`),
   CONSTRAINT `bang_diem_tb_ibfk_1` FOREIGN KEY (`hocSinh_id`) REFERENCES `hoc_sinh` (`idHocSinh`),
   CONSTRAINT `bang_diem_tb_ibfk_2` FOREIGN KEY (`hocKy_id`) REFERENCES `hoc_ky` (`idHocKy`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -78,7 +77,6 @@ CREATE TABLE `bang_diem_tb` (
 
 LOCK TABLES `bang_diem_tb` WRITE;
 /*!40000 ALTER TABLE `bang_diem_tb` DISABLE KEYS */;
-INSERT INTO `bang_diem_tb` VALUES (1,1,1,8.19),(2,2,1,7.85);
 /*!40000 ALTER TABLE `bang_diem_tb` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -92,8 +90,8 @@ DROP TABLE IF EXISTS `danh_sach_lop`;
 CREATE TABLE `danh_sach_lop` (
   `maDsLop` int NOT NULL AUTO_INCREMENT,
   `idPhongHoc` int DEFAULT NULL,
-  `tenLop` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `khoi` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tenLop` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `khoi` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `giaoVienChuNhiem_id` int DEFAULT NULL,
   `siSoHienTai` int NOT NULL,
   `siSo` int NOT NULL,
@@ -107,7 +105,7 @@ CREATE TABLE `danh_sach_lop` (
   CONSTRAINT `danh_sach_lop_ibfk_1` FOREIGN KEY (`idPhongHoc`) REFERENCES `phong_hoc` (`idPhongHoc`),
   CONSTRAINT `danh_sach_lop_ibfk_2` FOREIGN KEY (`giaoVienChuNhiem_id`) REFERENCES `giaovien` (`id`),
   CONSTRAINT `danh_sach_lop_ibfk_3` FOREIGN KEY (`hocKy_id`) REFERENCES `hoc_ky` (`idHocKy`)
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -116,45 +114,7 @@ CREATE TABLE `danh_sach_lop` (
 
 LOCK TABLES `danh_sach_lop` WRITE;
 /*!40000 ALTER TABLE `danh_sach_lop` DISABLE KEYS */;
-INSERT INTO `danh_sach_lop` VALUES (26,NULL,'10A1','Khối 10',7,2,2,1,1),(27,NULL,'11A1','Khối 11',3,2,2,1,1);
 /*!40000 ALTER TABLE `danh_sach_lop` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `giao_vien`
---
-
-DROP TABLE IF EXISTS `giao_vien`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `giao_vien` (
-  `idGiaoVien` int NOT NULL AUTO_INCREMENT,
-  `hoTen` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `gioiTinh` tinyint(1) NOT NULL,
-  `ngaySinh` date NOT NULL,
-  `diaChi` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `SDT` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `eMail` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `taiKhoan` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `matKhau` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `idMonHoc` int NOT NULL,
-  PRIMARY KEY (`idGiaoVien`),
-  UNIQUE KEY `SDT` (`SDT`),
-  UNIQUE KEY `eMail` (`eMail`),
-  UNIQUE KEY `taiKhoan` (`taiKhoan`),
-  KEY `idMonHoc` (`idMonHoc`),
-  CONSTRAINT `giao_vien_ibfk_1` FOREIGN KEY (`idMonHoc`) REFERENCES `mon_hoc` (`idMonHoc`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `giao_vien`
---
-
-LOCK TABLES `giao_vien` WRITE;
-/*!40000 ALTER TABLE `giao_vien` DISABLE KEYS */;
-INSERT INTO `giao_vien` VALUES (6,'Lý Vi Quyền',1,'1992-09-09','Thành phố Hồ Chí Minh','0792821000','viquyen@gmail.com','viquyen','e10adc3949ba59abbe56e057f20f883e',3),(7,'Tô Oai Hùng',1,'1992-09-15','Thành phố Hồ Chí Minh','0123456789','oaihung@gmai.com','oaihung','e10adc3949ba59abbe56e057f20f883e',1),(8,'Nguyễn Mai Trang',0,'1992-11-16','Thành phố Hồ Chí Minh','0762590966','maitrang@gmail.com','maitrang','e10adc3949ba59abbe56e057f20f883e',2),(9,'Minh Khuê',1,'1992-03-09','Thành phố Hồ Chí Minh','0794521012','minhkhue@gmail.com','minhkhue','e10adc3949ba59abbe56e057f20f883e',1);
-/*!40000 ALTER TABLE `giao_vien` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -167,13 +127,16 @@ DROP TABLE IF EXISTS `giao_vien_day_hoc`;
 CREATE TABLE `giao_vien_day_hoc` (
   `idGiaoVienDayHoc` int NOT NULL AUTO_INCREMENT,
   `idGiaoVien` int DEFAULT NULL,
+  `idHocKy` int DEFAULT NULL,
   `idDsLop` int DEFAULT NULL,
   PRIMARY KEY (`idGiaoVienDayHoc`),
   KEY `idGiaoVien` (`idGiaoVien`),
+  KEY `idHocKy` (`idHocKy`),
   KEY `idDsLop` (`idDsLop`),
   CONSTRAINT `giao_vien_day_hoc_ibfk_1` FOREIGN KEY (`idGiaoVien`) REFERENCES `giaovien` (`id`),
-  CONSTRAINT `giao_vien_day_hoc_ibfk_2` FOREIGN KEY (`idDsLop`) REFERENCES `danh_sach_lop` (`maDsLop`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=82 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  CONSTRAINT `giao_vien_day_hoc_ibfk_2` FOREIGN KEY (`idHocKy`) REFERENCES `hoc_ky` (`idHocKy`),
+  CONSTRAINT `giao_vien_day_hoc_ibfk_3` FOREIGN KEY (`idDsLop`) REFERENCES `danh_sach_lop` (`maDsLop`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -182,7 +145,6 @@ CREATE TABLE `giao_vien_day_hoc` (
 
 LOCK TABLES `giao_vien_day_hoc` WRITE;
 /*!40000 ALTER TABLE `giao_vien_day_hoc` DISABLE KEYS */;
-INSERT INTO `giao_vien_day_hoc` VALUES (76,7,26),(77,4,26),(78,6,26),(79,3,27),(80,4,27),(81,6,27);
 /*!40000 ALTER TABLE `giao_vien_day_hoc` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -195,7 +157,7 @@ DROP TABLE IF EXISTS `giaovien`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `giaovien` (
   `id` int NOT NULL,
-  `idMonHoc` int NOT NULL,
+  `idMonHoc` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idMonHoc` (`idMonHoc`),
   CONSTRAINT `giaovien_ibfk_1` FOREIGN KEY (`id`) REFERENCES `users` (`id`),
@@ -209,7 +171,6 @@ CREATE TABLE `giaovien` (
 
 LOCK TABLES `giaovien` WRITE;
 /*!40000 ALTER TABLE `giaovien` DISABLE KEYS */;
-INSERT INTO `giaovien` VALUES (4,1),(6,2),(3,3),(7,3);
 /*!40000 ALTER TABLE `giaovien` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -222,8 +183,8 @@ DROP TABLE IF EXISTS `hoc_ky`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `hoc_ky` (
   `idHocKy` int NOT NULL AUTO_INCREMENT,
-  `namHoc` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `hocKy` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `namHoc` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `hocKy` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`idHocKy`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -247,20 +208,20 @@ DROP TABLE IF EXISTS `hoc_sinh`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `hoc_sinh` (
   `idHocSinh` int NOT NULL AUTO_INCREMENT,
-  `hoTen` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `hoTen` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `gioiTinh` tinyint(1) NOT NULL,
   `ngaySinh` date NOT NULL,
-  `khoi` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `diaChi` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `SDT` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `eMail` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `khoi` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `diaChi` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `SDT` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `eMail` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `maDsLop` int DEFAULT NULL,
   PRIMARY KEY (`idHocSinh`),
   UNIQUE KEY `SDT` (`SDT`),
   UNIQUE KEY `eMail` (`eMail`),
   KEY `maDsLop` (`maDsLop`),
   CONSTRAINT `hoc_sinh_ibfk_1` FOREIGN KEY (`maDsLop`) REFERENCES `danh_sach_lop` (`maDsLop`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -269,32 +230,7 @@ CREATE TABLE `hoc_sinh` (
 
 LOCK TABLES `hoc_sinh` WRITE;
 /*!40000 ALTER TABLE `hoc_sinh` DISABLE KEYS */;
-INSERT INTO `hoc_sinh` VALUES (1,'Nguyễn Quang Trung',1,'2009-02-21','Khối 10','Tp. Hồ Chí Minh','0987654321','quangtrung@gmail.com',26),(2,'Trần Thị Tuyết',0,'2009-03-27','Khối 10','Tp. Hồ Chí Minh','0987456321','tuyettran@gmail.com',26),(4,'Nguyễn Trà My',0,'2008-05-21','Khối 11','Tp. Hồ Chí Minh','0762590922','tramy@gmail.com',27),(5,'Trần Quốc Tuấn',1,'2008-04-01','Khối 11','Tp. Hồ Chí Minh','0762595241','tuan123@gmail.com',27);
 /*!40000 ALTER TABLE `hoc_sinh` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `mon_hoc`
---
-
-DROP TABLE IF EXISTS `mon_hoc`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `mon_hoc` (
-  `idMonHoc` int NOT NULL AUTO_INCREMENT,
-  `tenMonHoc` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`idMonHoc`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `mon_hoc`
---
-
-LOCK TABLES `mon_hoc` WRITE;
-/*!40000 ALTER TABLE `mon_hoc` DISABLE KEYS */;
-INSERT INTO `mon_hoc` VALUES (1,'Toán'),(2,'Văn'),(3,'Anh');
-/*!40000 ALTER TABLE `mon_hoc` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -306,11 +242,12 @@ DROP TABLE IF EXISTS `monhoc`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `monhoc` (
   `idMonHoc` int NOT NULL AUTO_INCREMENT,
-  `tenMonHoc` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tenMonHoc` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `soCot15p` int NOT NULL,
   `soCot1Tiet` int NOT NULL,
   `soCotThi` int NOT NULL,
-  PRIMARY KEY (`idMonHoc`)
+  PRIMARY KEY (`idMonHoc`),
+  UNIQUE KEY `tenMonHoc` (`tenMonHoc`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -325,41 +262,6 @@ INSERT INTO `monhoc` VALUES (1,'Văn',5,3,1),(2,'Toán',5,3,1),(3,'Anh',3,2,1);
 UNLOCK TABLES;
 
 --
--- Table structure for table `nhan_vien`
---
-
-DROP TABLE IF EXISTS `nhan_vien`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `nhan_vien` (
-  `idNhanVien` int NOT NULL AUTO_INCREMENT,
-  `hoTen` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `gioiTinh` tinyint(1) NOT NULL,
-  `ngaySinh` date NOT NULL,
-  `diaChi` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `SDT` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `eMail` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `vaiTro` enum('ADMIN','NHANVIENTIEPNHAN','GIAOVIEN','NGUOIQUANTRI') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `taiKhoan` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `matKhau` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`idNhanVien`),
-  UNIQUE KEY `SDT` (`SDT`),
-  UNIQUE KEY `eMail` (`eMail`),
-  UNIQUE KEY `taiKhoan` (`taiKhoan`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `nhan_vien`
---
-
-LOCK TABLES `nhan_vien` WRITE;
-/*!40000 ALTER TABLE `nhan_vien` DISABLE KEYS */;
-INSERT INTO `nhan_vien` VALUES (1,'Tô Quốc Bình',1,'2004-02-21','Thành phố Hồ Chí Minh','0762590966','toquocbinh2102@gmail.com','NHANVIENTIEPNHAN','quocbinh','e10adc3949ba59abbe56e057f20f883e'),(3,'Trần Quốc Phong',1,'2004-10-30','Thành phố Hồ Chí Minh','0799773010','toquocphong2102@gmail.com','NGUOIQUANTRI','quocphong','e10adc3949ba59abbe56e057f20f883e');
-/*!40000 ALTER TABLE `nhan_vien` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `nhanvien`
 --
 
@@ -368,7 +270,7 @@ DROP TABLE IF EXISTS `nhanvien`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `nhanvien` (
   `id` int NOT NULL,
-  `vaiTro` enum('NGUOIQUANTRI','NHANVIEN') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `vaiTro` enum('NGUOIQUANTRI','NHANVIEN') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `nhanvien_ibfk_1` FOREIGN KEY (`id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -380,7 +282,7 @@ CREATE TABLE `nhanvien` (
 
 LOCK TABLES `nhanvien` WRITE;
 /*!40000 ALTER TABLE `nhanvien` DISABLE KEYS */;
-INSERT INTO `nhanvien` VALUES (1,'NGUOIQUANTRI'),(2,'NHANVIEN');
+INSERT INTO `nhanvien` VALUES (1,'NGUOIQUANTRI'),(4,'NHANVIEN');
 /*!40000 ALTER TABLE `nhanvien` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -393,7 +295,7 @@ DROP TABLE IF EXISTS `phong_hoc`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `phong_hoc` (
   `idPhongHoc` int NOT NULL AUTO_INCREMENT,
-  `tenPhong` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tenPhong` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`idPhongHoc`),
   UNIQUE KEY `tenPhong` (`tenPhong`)
 ) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -444,19 +346,19 @@ DROP TABLE IF EXISTS `users`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `users` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `hoTen` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `hoTen` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `gioiTinh` tinyint(1) NOT NULL,
   `ngaySinh` date NOT NULL,
-  `diaChi` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `SDT` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `eMail` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `taiKhoan` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `matKhau` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `diaChi` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `SDT` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `eMail` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `taiKhoan` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `matKhau` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `SDT` (`SDT`),
   UNIQUE KEY `eMail` (`eMail`),
   UNIQUE KEY `taiKhoan` (`taiKhoan`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -465,7 +367,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'Tô Quốc Bình',1,'2004-02-21','Thành phố Hồ Chí Minh','0762590966','toquocbinh2102@gmail.com','admin','e10adc3949ba59abbe56e057f20f883e'),(2,'Trần Quốc Phong',1,'2004-10-30','Thành phố Hồ Chí Minh','0762590977','tqphong2k4@gmail.com','quocphong','e10adc3949ba59abbe56e057f20f883e'),(3,'Trần Huỳnh Sang',1,'2004-03-24','Cà Mau','0123456789','hsang1@gmail.com','huynhsang','e10adc3949ba59abbe56e057f20f883e'),(4,'Nguyễn Đăng Khôi',1,'2004-05-24','Tp. Hồ Chí Minh','0123654789','dangkhoi@gmail.com','dangkhoi','e10adc3949ba59abbe56e057f20f883e'),(6,'Nguyễn Thanh Hà',0,'2004-08-10','Tp. Hồ Chí Minh','0762590978','hanguyen@gmail.com','thanhha','e10adc3949ba59abbe56e057f20f883e'),(7,'Lý Vi Quyền',1,'1992-09-17','Thành phố Hồ Chí Minh','0797343423','viquyen@gmail.com','viquyen','e10adc3949ba59abbe56e057f20f883e');
+INSERT INTO `users` VALUES (1,'Tô Quốc Bình',1,'2004-02-21','Thành phố Hồ Chí Minh','0762590966','toquocbinh2102@gmail.com','admin','e10adc3949ba59abbe56e057f20f883e'),(4,'Trần Quốc Phong',1,'2004-10-30','Thành phố Hồ Chí Minh','0792821010','tqphong2004@gmail.com','quocphong','e10adc3949ba59abbe56e057f20f883e');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -478,4 +380,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-12-23 21:11:39
+-- Dump completed on 2024-12-24 17:50:41
