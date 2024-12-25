@@ -20,7 +20,6 @@ def get_user_by_id(id):
     return User.query.get(id)
 
 def tinh_diem_tb_mon(hoc_sinh_id, hoc_ky_id, mon_hoc_id):
-    mon_hoc = MonHoc.query.get(mon_hoc_id)
     diem_cua_hoc_sinh = BangDiem.query.filter_by(hocSinh_id=hoc_sinh_id, hocKy_id=hoc_ky_id, monHoc_id=mon_hoc_id)
     diem_tb_mon=0
     ds_15p = []
@@ -82,3 +81,6 @@ def tinh_diem_trung_binh(hoc_sinh_id, hoc_ky_id):
         return round(diem_trung_binh / so_mon_hoc, 2)  # Trả về điểm trung bình
     else:
         return None  # Nếu không có điểm, trả về None
+
+def lay_ds_mon():
+    return MonHoc.query.all()

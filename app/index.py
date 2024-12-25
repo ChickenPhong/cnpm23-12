@@ -1,7 +1,7 @@
 from random import choice
 
 from flask import render_template, request, redirect, session, flash, url_for
-from sqlalchemy import and_
+from sqlalchemy import and_, Null
 from app import app, db, dao, login
 from datetime import date, datetime
 
@@ -151,6 +151,7 @@ def create_auto_classes():
 
         # Lấy học kỳ hiện tại (mặc định là Học kỳ 1)
         hoc_ky = HocKy.query.filter(HocKy.hocKy == "1").order_by(HocKy.idHocKy.desc()).first()
+        print(hoc_ky)
         if not hoc_ky:
             return redirect('/admin')
 
@@ -161,10 +162,11 @@ def create_auto_classes():
             giao_vien_by_mon[gv.idMonHoc].append(gv)
 
         giao_vien_kha_dung = GiaoVien.query.all()
-        giao_vien_da_chu_nhiem = {gv_cn.giaoVienChuNhiem_id for gv_cn in DanhSachLop.query.filter(DanhSachLop.giaoVienChuNhiem_id != None)}
-        giao_vien_kha_dung = [gv for gv in giao_vien_kha_dung if gv.id not in giao_vien_da_chu_nhiem]
+        # giao_vien_da_chu_nhiem = {gv_cn.giaoVienChuNhiem_id for gv_cn in DanhSachLop.query.filter(DanhSachLop.giaoVienChuNhiem_id != None)}
+        # giao_vien_kha_dung = [gv for gv in giao_vien_kha_dung if gv.id not in giao_vien_da_chu_nhiem]
 
         quy_dinh = QuyDinh.query.first()
+        print(quy_dinh)
 
         for khoi, group_students in grade_groups.items():
             siSo = quy_dinh.si_so  # Số lượng học sinh mỗi lớp
@@ -189,7 +191,8 @@ def create_auto_classes():
                 # Gán giáo viên chủ nhiệm vào bảng GiaoVienChuNhiem
                 giao_vien_day_hoc = GiaoVienDayHoc(
                     idGiaoVien=gv_chu_nhiem.id,
-                    idDsLop=new_class.maDsLop
+                    idDsLop=new_class.maDsLop,
+                    idHocKy=hoc_ky.idHocKy
                 )
                 print(giao_vien_day_hoc.idGiaoVien)
                 print(giao_vien_day_hoc.idDsLop)
@@ -208,7 +211,8 @@ def create_auto_classes():
                         # Gán giáo viên dạy môn này cho lớp
                         new_class.giaoVienDayHocs.append(GiaoVienDayHoc(
                             idGiaoVien=gv.id,
-                            idDsLop=new_class.maDsLop
+                            idDsLop=new_class.maDsLop,
+                            idHocKy = hoc_ky.idHocKy
                         ))
 
                 # Ghi nhận giáo viên đã làm chủ nhiệm
@@ -818,10 +822,178 @@ def bang_diem_tong_ket(taikhoan):
         taikhoan=taikhoan
     )
 
+
 @app.route('/ket-thuc-nam-hoc', methods=['POST'])
 def ket_thuc_nam_hoc():
+    try:
+        Ds_lop = DanhSachLop.query.filter_by(active=True).all()
+        hoc_ky = HocKy.query.order_by(HocKy.idHocKy.desc()).first()
+        print(hoc_ky)
+        idHocKy = hoc_ky.idHocKy
+        print(idHocKy)
+        for lop in Ds_lop:
+            ds_hoc_sinh = lop.hocSinhs
+            for hs in ds_hoc_sinh:
+                flag = True
+                hs.maDsLop=None
+                ds_mon = dao.lay_ds_mon()
+                for mon in ds_mon:
+                    dtb_mon1 = dao.tinh_diem_tb_mon(hs.idHocSinh,idHocKy-1,mon.idMonHoc)
+                    dtb_mon2 = dao.tinh_diem_tb_mon(hs.idHocSinh,idHocKy,mon.idMonHoc)
+                    dtb_mon = (dtb_mon1+dtb_mon2)/2
+                    if dtb_mon < 3.5:
+                        flag = False
+                        break
+                if flag:
+                    dtb_ky1 = BangDiemTB.query.filter_by(hocSinh_id=hs.idHocSinh, hocKy_id=idHocKy-1).first()
+                    dtb_ky2 = BangDiemTB.query.filter_by(hocSinh_id=hs.idHocSinh, hocKy_id=idHocKy).first()
+                    print(dtb_ky1)
+                    print(dtb_ky2)
+                    dtb_nam = (dtb_ky1.diem_trung_binh+dtb_ky2.diem_trung_binh)/2
+                    print(dtb_nam)
+                    if dtb_nam>=5:
+                        #Môn Văn
+                        mon_van = MonHoc.query.filter_by(tenMonHoc="Văn").first()
+                        dtb_van1 = dao.tinh_diem_tb_mon(hs.idHocSinh, idHocKy - 1, mon_van.idMonHoc)
+                        dtb_van2 = dao.tinh_diem_tb_mon(hs.idHocSinh, idHocKy, mon_van.idMonHoc)
+                        dtb_van = round((dtb_van1 + dtb_van2)/2,2)
+                        #Môn Toán
+                        mon_toan = MonHoc.query.filter_by(tenMonHoc="Toán").first()
+                        dtb_toan1 = dao.tinh_diem_tb_mon(hs.idHocSinh, idHocKy - 1, mon_toan.idMonHoc)
+                        dtb_toan2 = dao.tinh_diem_tb_mon(hs.idHocSinh, idHocKy, mon_toan.idMonHoc)
+                        dtb_toan = round((dtb_toan1 + dtb_toan2) / 2,2)
+                        #Môn Anh
+                        mon_anh = MonHoc.query.filter_by(tenMonHoc="Anh").first()
+                        dtb_anh1 = dao.tinh_diem_tb_mon(hs.idHocSinh, idHocKy - 1, mon_anh.idMonHoc)
+                        dtb_anh2 = dao.tinh_diem_tb_mon(hs.idHocSinh, idHocKy, mon_anh.idMonHoc)
+                        dtb_anh = round((dtb_anh1 + dtb_anh2) / 2,2)
+                        if dtb_van>=5 or dtb_toan>=5 or dtb_anh>=5:
+                            if hs.khoi.__eq__("Khối 10"):
+                                hs.khoi = "Khối 11"
+                            elif hs.khoi.__eq__("Khối 11"):
+                                hs.khoi = "Khối 12"
+                            elif hs.khoi.__eq__("Khối 12"):
+                                hs.khoi = ""
+            lop.idPhongHoc = None
+            lop.active = False
+
+        # Tạo năm học mới
+        nam_hoc_hien_tai = hoc_ky.namHoc
+        nam_hoc_bat_dau, nam_hoc_ket_thuc = map(int, nam_hoc_hien_tai.split('-'))
+        nam_hoc_moi = f"{nam_hoc_bat_dau + 1}-{nam_hoc_ket_thuc + 1}"
+
+        # Tạo học kỳ 1
+        hoc_ky_1 = HocKy(
+            namHoc=nam_hoc_moi,
+            hocKy="1"
+        )
+        db.session.add(hoc_ky_1)
+        # db.session.flush()  # Lưu tạm để lấy ID học kỳ 1
+
+        # Tạo học kỳ 2
+        hoc_ky_2 = HocKy(
+            namHoc=nam_hoc_moi,
+            hocKy="2"
+        )
+        db.session.add(hoc_ky_2)
+        db.session.commit()
+
+
+        # # Lấy học kỳ hiện tại
+        # hoc_ky_hien_tai = HocKy.query.order_by(HocKy.idHocKy.desc()).first()
+        # if not hoc_ky_hien_tai:
+        #     flash("Không tìm thấy học kỳ hiện tại!", "danger")
+        #     return redirect('/admin')
+        #
+        # # Tăng năm học mới
+        # nam_hoc_moi = f"{int(hoc_ky_hien_tai.namHoc.split('-')[1])}-{int(hoc_ky_hien_tai.namHoc.split('-')[1]) + 1}"
+        #
+        # # Tạo học kỳ 1 trong năm học mới
+        # hoc_ky_1 = HocKy(
+        #     namHoc=nam_hoc_moi,
+        #     hocKy="1"
+        # )
+        # db.session.add(hoc_ky_1)
+        # db.session.flush()  # Lưu tạm để lấy ID học kỳ 1
+        #
+        # # Tạo học kỳ 2 trong năm học mới
+        # hoc_ky_2 = HocKy(
+        #     namHoc=nam_hoc_moi,
+        #     hocKy="2"
+        # )
+        # db.session.add(hoc_ky_2)
+        # db.session.commit()  # Lưu cả hai học kỳ vào cơ sở dữ liệu
+        #
+        # # Lấy danh sách các lớp hiện tại, sắp xếp giảm dần theo khối
+        # danh_sach_lop = DanhSachLop.query.filter(DanhSachLop.active == True).order_by(DanhSachLop.khoi.desc(),
+        #                                                                               DanhSachLop.tenLop).all()
+        #
+        # # Lấy danh sách giáo viên có thể làm chủ nhiệm
+        # giao_vien_chu_nhiem = GiaoVien.query.all()
+        # giao_vien_da_chu_nhiem = set()  # Lưu danh sách giáo viên đã làm chủ nhiệm
+        #
+        # for lop in danh_sach_lop:
+        #     # Lấy danh sách học sinh trong lớp
+        #     danh_sach_hoc_sinh = HocSinh.query.filter(HocSinh.maDsLop == lop.maDsLop).all()
+        #
+        #     # Khối 12
+        #     if lop.khoi == "Khối 12":
+        #         lop.active = False
+        #         lop.tenLop = None  # Xóa tên lớp
+        #         lop.giaoVienChuNhiem_id = None  # Xóa giáo viên chủ nhiệm
+        #
+        #         for hs in danh_sach_hoc_sinh:
+        #             hs.khoi = "Khối 12"  # Giữ nguyên khối 12
+        #
+        #     # Khối 11 -> Khối 12
+        #     elif lop.khoi == "Khối 11":
+        #         lop.khoi = "Khối 12"
+        #         lop.tenLop = lop.tenLop.replace("11", "12")  # Tăng khối và tên lớp
+        #
+        #         for hs in danh_sach_hoc_sinh:
+        #             hs.khoi = "Khối 12"
+        #
+        #     # Khối 10 -> Khối 11
+        #     elif lop.khoi == "Khối 10":
+        #         lop.khoi = "Khối 11"
+        #         lop.tenLop = lop.tenLop.replace("10", "11")  # Tăng khối và tên lớp
+        #
+        #         for hs in danh_sach_hoc_sinh:
+        #             hs.khoi = "Khối 11"
+        #
+        #     # Gán học kỳ mới cho các lớp còn lại
+        #     lop.hocKy_id = hoc_ky_1.idHocKy
+        #     # Bỏ phòng học trước khi xóa PhongHoc
+        #     lop.idPhongHoc = None
+        #
+        #     # Random đổi giáo viên chủ nhiệm cho các lớp khác khối 12
+        #     if lop.khoi != "Khối 12":
+        #         giao_vien_moi = None
+        #         while True:
+        #             giao_vien_moi = choice(giao_vien_chu_nhiem)
+        #             if giao_vien_moi.id not in giao_vien_da_chu_nhiem:
+        #                 giao_vien_da_chu_nhiem.add(giao_vien_moi.id)
+        #                 break
+        #         lop.giaoVienChuNhiem_id = giao_vien_moi.id
+        #
+        #     db.session.add(lop)
+        #
+        # # Xóa các bản ghi GiaoVienDayHoc liên quan đến lớp có idDsLop = None
+        # giao_vien_day_hoc_none = GiaoVienDayHoc.query.filter(GiaoVienDayHoc.idDsLop == None).all()
+        # for record in giao_vien_day_hoc_none:
+        #     db.session.delete(record)
+        #
+        # # Sau khi đảm bảo không còn lớp nào tham chiếu tới PhongHoc, xóa phòng học
+        # PhongHoc.query.delete()
+        #
+        db.session.commit()
+        flash("Đã kết thúc năm học thành công! Các lớp và khối đã được cập nhật.", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Lỗi khi kết thúc năm học: {str(e)}", "danger")
 
     return redirect('/admin')
+
 
 if __name__ == '__main__':
     from app import admin

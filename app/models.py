@@ -161,7 +161,7 @@ class DanhSachLop(db.Model):
 
     maDsLop = Column(Integer, primary_key=True, autoincrement=True)
     idPhongHoc = Column(Integer, ForeignKey(PhongHoc.idPhongHoc),unique=True, nullable=True)
-    tenLop = Column(String(50),unique=True,nullable=True)
+    tenLop = Column(String(50),nullable=True)
     khoi = Column(String(50), nullable=False)
     giaoVienChuNhiem_id = Column(Integer, ForeignKey(GiaoVien.id), nullable=True)
     siSoHienTai = Column(Integer, nullable=False)
@@ -208,8 +208,8 @@ if __name__== '__main__':
         # db.session.add(quy_dinh_mac_dinh)
         # db.session.commit()
 
-        # hk1 = HocKy(namHoc="2024-2025", hocKy="1")
-        # hk2 = HocKy(namHoc="2024-2025", hocKy="2")
+        # hk1 = HocKy(namHoc="2023-2024", hocKy="1")
+        # hk2 = HocKy(namHoc="2023-2024", hocKy="2")
         # db.session.add_all([hk1,hk2])
         # db.session.commit()
 
@@ -237,7 +237,7 @@ if __name__== '__main__':
         #     diaChi="Thành phố Hồ Chí Minh",
         #     SDT="0799773010",
         #     eMail="toquocphong2102@gmail.com",
-        #     vaiTro=UserRole.NGUOIQUANTRI,
+        #     vaiTro=UserRole.NHANVIEN,
         #     taiKhoan="quocphong",
         #     matKhau=str(hashlib.md5('123456'.encode('utf-8')).hexdigest())
         # )

@@ -12,8 +12,17 @@ admin = Admin(app=app, name='Người Quản Trị', template_mode='bootstrap4')
 
 
 class DanhSachLopView(ModelView):
-    form_columns = ['tenLop', 'hocKy', 'giaoVienChuNhiem', 'phongHoc', 'siSo']
-
+    form_columns = ['tenLop', 'hocKy', 'giaoVienChuNhiem', 'phongHoc', 'siSo', 'active']
+    column_list = ['tenLop', 'hocKy.namHoc', 'giaoVienChuNhiem', 'phongHoc', 'siSoHienTai', 'siSo', 'active']
+    column_labels = {
+        'tenLop':'Lớp',
+        'hocKy.namHoc': 'Năm học',
+        'giaoVienChuNhiem':'Giáo viên chủ nhiệm',
+        'phongHoc':'Phòng',
+        'siSoHienTai':"Sĩ số lớp",
+        'siSo':'Sĩ số tối đa',
+        'active':'Trạng thái'
+    }
     # def on_model_change(self, form, model, is_created):
     #     # Kiểm tra nếu phòng học đã được sử dụng
     #     existing_class = DanhSachLop.query.filter(
@@ -31,6 +40,17 @@ class DanhSachLopView(ModelView):
 class GiaoVienView(ModelView):
     column_list = ['hoTen', 'gioiTinh', 'ngaySinh', 'diaChi', 'SDT', 'eMail', 'monHoc', 'taiKhoan', 'matKhau']
     form_columns = ['hoTen', 'gioiTinh', 'ngaySinh', 'diaChi', 'SDT', 'eMail', 'taiKhoan', 'matKhau', 'monHoc']
+    column_labels = {
+        'hoTen': 'Họ tên',
+        'gioiTinh': 'Giới tính',
+        'ngaySinh': 'Ngày sinh',
+        'diaChi': 'Địa chỉ',
+        'SDT': 'Số điện thoại',
+        'eMail': 'Email',
+        'monHoc': 'Môn học',
+        'taiKhoan': 'Tài khoản ',
+        'matKhau': 'Mật khẩu'
+    }
 
     def on_model_change(self, form, model, is_created):
         if form.matKhau.data:
@@ -40,6 +60,18 @@ class GiaoVienView(ModelView):
 
 class NhanVienView(ModelView):
     #form_columns = ['hoTen', 'gioiTinh', 'ngaySinh', 'diaChi', 'SDT', 'eMail', 'taiKhoan', 'matKhau', 'vaiTro']
+
+    column_labels = {
+        'hoTen': 'Họ tên',
+        'gioiTinh': 'Giới tính',
+        'ngaySinh': 'Ngày sinh',
+        'diaChi': 'Địa chỉ',
+        'SDT': 'Số điện thoại',
+        'eMail': 'Email',
+        'taiKhoan': 'Tài khoản',
+        'matKhau': 'Mật khẩu',
+        'vaiTro': 'Vai trò'
+    }
 
     def on_model_change(self, form, model, is_created):
         if form.matKhau.data:
@@ -59,6 +91,19 @@ class GiaoVienDayHocView(ModelView):
     can_create = False  # Không cho phép thêm
     can_delete = False  # Không cho phép xóa
 
+class HocSinhView(ModelView):
+    form_columns = ['hocSinhLop', 'hoTen', 'gioiTinh','ngaySinh', 'khoi','diaChi','SDT','eMail']
+    column_list = ['hoTen', 'gioiTinh', 'ngaySinh', 'khoi','diaChi','SDT','eMail','hocSinhLop']
+    column_labels = {
+        'hoTen': 'Họ tên',
+        'gioiTinh': 'Giới tính',
+        'ngaySinh': 'Ngày sinh',
+        'khoi':'Khối',
+        'diaChi':'Địa chỉ',
+        'SDT':'Số điện thoại',
+        'hocSinhLop':'Học lớp'
+    }
+    can_create = False  # Không cho phép thêm
 
 
 
@@ -95,6 +140,6 @@ admin.add_view(ModelView(PhongHoc, db.session))
 admin.add_view(NhanVienView(NhanVien, db.session))
 admin.add_view(GiaoVienView(GiaoVien, db.session))
 admin.add_view(GiaoVienDayHocView(GiaoVienDayHoc, db.session))
-admin.add_view(ModelView(HocSinh, db.session))
+admin.add_view(HocSinhView(HocSinh, db.session))
 admin.add_view(DanhSachLopView(DanhSachLop, db.session))
 
