@@ -98,11 +98,19 @@
         <p>Đây là giao diện dành cho giáo viên</p>
     </header>
     <main>
+        <!-- Hiển thị thông báo -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        <strong>{{ message }}</strong>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
         <ul>
             <li><a href="/giao-vien/{{taikhoan}}/danh-sach-lop-day">Danh sách lớp dạy</a></li>
-            {% if giaovien.lop %}
             <li><a href="/giao-vien/{{taikhoan}}/lop-chu-nhiem">Danh sách lớp chủ nhiệm</a></li>
-            {% endif %}
             <li><a href="/logout" class="logout">Đăng xuất</a></li>
         </ul>
     </main>

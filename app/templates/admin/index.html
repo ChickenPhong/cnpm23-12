@@ -4,9 +4,13 @@
 
 <h1 class="text-primary">CHÀO MỪNG ĐẾN VỚI TRANG QUẢN TRỊ!</h1>
 <div class="mt-4">
+  {% if not active %}
   <a href="/tao-danh-sach-lop" class="btn btn-primary">Tạo danh sách lớp</a>
+  {% endif %}
   <a href="/thong-ke-bao-cao" class="btn btn-primary">Thống kê báo cáo</a>
+  {% if active %}
   <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ketThucNamModal">Kết thúc năm học</button>
+  {% endif %}
   <a href="/logout" class="btn btn-danger">Đăng xuất</a>
 </div>
   <div class="modal fade" id="ketThucNamModal" tabindex="-1" aria-labelledby="ketThucNamModalLabel" aria-hidden="true">

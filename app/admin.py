@@ -30,8 +30,6 @@ class DanhSachLopView(ModelView):
         # Sắp xếp active = True trước, sau đó theo tên lớp
         return self.session.query(self.model).order_by(self.model.active.desc(), self.model.tenLop)
 
-    def get_count_query(self):
-        return self.session.query(func.count('*')).select_from(self.model)
     # def on_model_change(self, form, model, is_created):
     #     # Kiểm tra nếu phòng học đã được sử dụng
     #     existing_class = DanhSachLop.query.filter(
@@ -108,8 +106,6 @@ class GiaoVienDayHocView(ModelView):
             .order_by(HocKy.namHoc.desc())  # Sắp xếp theo năm học giảm dần
         )
 
-    def get_count_query(self):
-        return self.session.query(func.count('*')).select_from(self.model)
 
 class HocSinhView(ModelView):
     form_columns = ['hocSinhLop', 'hoTen', 'gioiTinh','ngaySinh', 'khoi','diaChi','SDT','eMail']
@@ -124,6 +120,13 @@ class HocSinhView(ModelView):
         'hocSinhLop':'Học lớp'
     }
     can_create = False  # Không cho phép thêm
+
+    def get_query(self):
+        # Sắp xếp active = True trước, sau đó theo tên lớp
+        return self.session.query(self.model).order_by(self.model.khoi.desc())
+
+    # def get_count_query(self):
+    #     return self.session.query(func.count('*')).select_from(self.model)
 
     # def on_model_change(self, form, model, is_created):
     #     dsKhoiPhong = KhoiPhong.query.all()
