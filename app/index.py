@@ -57,7 +57,6 @@ def thong_tin_giao_vien(taikhoan):
     gv = GiaoVien.query.get(current_user.id)
     return render_template('giao_vien.html', taikhoan=taikhoan, giaovien=gv)
 
-
 @app.route('/logout', methods=['get', 'post'])
 def logout_process():
     logout_user()
