@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.40, for Win64 (x86_64)
 --
--- Host: 127.0.0.1    Database: manadb
+-- Host: localhost    Database: manadb
 -- ------------------------------------------------------
 -- Server version	8.0.40
 
@@ -25,7 +25,7 @@ DROP TABLE IF EXISTS `bang_diem`;
 CREATE TABLE `bang_diem` (
   `idBangDiem` int NOT NULL AUTO_INCREMENT,
   `hocSinh_id` int NOT NULL,
-  `loai_diem` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `loai_diem` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `diem` float DEFAULT NULL,
   `monHoc_id` int NOT NULL,
   `giaoVien_id` int NOT NULL,
@@ -92,8 +92,8 @@ DROP TABLE IF EXISTS `danh_sach_lop`;
 CREATE TABLE `danh_sach_lop` (
   `maDsLop` int NOT NULL AUTO_INCREMENT,
   `idPhongHoc` int DEFAULT NULL,
-  `tenLop` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `khoi` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tenLop` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `khoi` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `giaoVienChuNhiem_id` int DEFAULT NULL,
   `siSoHienTai` int NOT NULL,
   `siSo` int NOT NULL,
@@ -187,8 +187,8 @@ DROP TABLE IF EXISTS `hoc_ky`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `hoc_ky` (
   `idHocKy` int NOT NULL AUTO_INCREMENT,
-  `namHoc` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `hocKy` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `namHoc` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `hocKy` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`idHocKy`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -212,13 +212,13 @@ DROP TABLE IF EXISTS `hoc_sinh`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `hoc_sinh` (
   `idHocSinh` int NOT NULL AUTO_INCREMENT,
-  `hoTen` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `hoTen` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `gioiTinh` tinyint(1) NOT NULL,
   `ngaySinh` date NOT NULL,
-  `khoi` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `diaChi` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `SDT` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `eMail` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `khoi` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `diaChi` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `SDT` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `eMail` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `maDsLop` int DEFAULT NULL,
   PRIMARY KEY (`idHocSinh`),
   UNIQUE KEY `SDT` (`SDT`),
@@ -247,7 +247,7 @@ DROP TABLE IF EXISTS `monhoc`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `monhoc` (
   `idMonHoc` int NOT NULL AUTO_INCREMENT,
-  `tenMonHoc` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tenMonHoc` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `soCot15p` int NOT NULL,
   `soCot1Tiet` int NOT NULL,
   `soCotThi` int NOT NULL,
@@ -275,7 +275,7 @@ DROP TABLE IF EXISTS `nhanvien`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `nhanvien` (
   `id` int NOT NULL,
-  `vaiTro` enum('NGUOIQUANTRI','NHANVIEN') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `vaiTro` enum('NGUOIQUANTRI','NHANVIEN') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `nhanvien_ibfk_1` FOREIGN KEY (`id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -300,7 +300,7 @@ DROP TABLE IF EXISTS `phong_hoc`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `phong_hoc` (
   `idPhongHoc` int NOT NULL AUTO_INCREMENT,
-  `tenPhong` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tenPhong` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`idPhongHoc`),
   UNIQUE KEY `tenPhong` (`tenPhong`)
 ) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -328,8 +328,11 @@ CREATE TABLE `quy_dinh` (
   `min_age` int DEFAULT NULL,
   `max_age` int DEFAULT NULL,
   `si_so` int DEFAULT NULL,
+  `so_cot_15p` int DEFAULT NULL,
+  `so_cot_1tiet` int DEFAULT NULL,
+  `so_cot_thi` int DEFAULT NULL,
   PRIMARY KEY (`idQuyDinh`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -338,7 +341,7 @@ CREATE TABLE `quy_dinh` (
 
 LOCK TABLES `quy_dinh` WRITE;
 /*!40000 ALTER TABLE `quy_dinh` DISABLE KEYS */;
-INSERT INTO `quy_dinh` VALUES (1,15,20,2);
+INSERT INTO `quy_dinh` VALUES (1,15,20,2,5,3,1);
 /*!40000 ALTER TABLE `quy_dinh` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -351,14 +354,14 @@ DROP TABLE IF EXISTS `users`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `users` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `hoTen` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `hoTen` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `gioiTinh` tinyint(1) NOT NULL,
   `ngaySinh` date NOT NULL,
-  `diaChi` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `SDT` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `eMail` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `taiKhoan` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `matKhau` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `diaChi` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `SDT` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `eMail` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `taiKhoan` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `matKhau` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `SDT` (`SDT`),
   UNIQUE KEY `eMail` (`eMail`),
@@ -385,4 +388,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-12-25 18:49:20
+-- Dump completed on 2024-12-26 16:46:35

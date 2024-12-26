@@ -26,11 +26,15 @@
                 <div class="col-md-4">
                     <label for="monHoc" class="form-label fw-bold">Chọn môn học:</label>
                     <select name="monHoc" id="monHoc" class="form-select">
-                        {% for mon in danh_sach_mon_hoc %}
-                            <option value="{{ mon.idMonHoc }}" {% if mon.idMonHoc == request.form.get('monHoc', '') | int %}selected{% endif %}>
-                                {{ mon.tenMonHoc }}
-                            </option>
-                        {% endfor %}
+                        {% if danh_sach_mon_hoc %} {# Kiểm tra danh sách môn học #}
+                            {% for mon in danh_sach_mon_hoc %}
+                                <option value="{{ mon.idMonHoc }}" {% if mon.idMonHoc == request.form.get('monHoc', '') | int %}selected{% endif %}>
+                                    {{ mon.tenMonHoc }}
+                                </option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="">Không có môn học</option> {# Hoặc thông báo khác #}
+                        {% endif %}
                     </select>
                 </div>
                 <div class="col-md-4">

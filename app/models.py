@@ -190,7 +190,9 @@ class QuyDinh(db.Model):
     min_age = Column(Integer)
     max_age = Column(Integer)
     si_so = Column(Integer)
-
+    so_cot_15p = Column(Integer)
+    so_cot_1tiet = Column(Integer)
+    so_cot_thi=Column(Integer)
 
 if __name__== '__main__':
     with app.app_context():
@@ -204,7 +206,7 @@ if __name__== '__main__':
         # db.session.commit()
 
         # quy_dinh_mac_dinh = QuyDinh(min_age=app.config["MIN_AGE"], max_age=app.config["MAX_AGE"],
-        #     si_so=app.config["SI_SO"])
+        #     si_so=app.config["SI_SO"], so_cot_15p=5, so_cot_1tiet=3, so_cot_thi=1)
         # db.session.add(quy_dinh_mac_dinh)
         # db.session.commit()
 

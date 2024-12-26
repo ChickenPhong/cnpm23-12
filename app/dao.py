@@ -50,21 +50,6 @@ def get_ds_gv():
 def get_ds_phong():
     return PhongHoc.query.all()
 
-def get_ds_diem_hs_theo_mon(idHocSinh,idMonHoc,idHocKy,loai):
-    if loai=="thi":
-        return BangDiem.query.filter_by(
-            hocSinh_id=idHocSinh,
-            monHoc_id=idMonHoc,
-            hocKy_id=idHocKy,
-            loai_diem='thi'
-        ).first()
-    else:
-        return BangDiem.query.filter_by(
-            hocSinh_id=idHocSinh,
-            monHoc_id=idMonHoc,
-            hocKy_id=idHocKy
-        .filter(BangDiem.loai_diem.like(loai)))
-
 def tinh_diem_tb_mon(hoc_sinh_id, hoc_ky_id, mon_hoc_id):
     diem_cua_hoc_sinh = BangDiem.query.filter_by(hocSinh_id=hoc_sinh_id, hocKy_id=hoc_ky_id, monHoc_id=mon_hoc_id)
     diem_tb_mon=0
