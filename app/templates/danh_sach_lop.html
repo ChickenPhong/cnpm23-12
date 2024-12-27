@@ -120,7 +120,8 @@
         <tr>
             <th>Tên lớp</th>
             <th>Phòng học</th>
-            <th>Sĩ số</th>
+            <th>Sĩ số hiện tại</th>
+            <th>Sĩ số lớp</th>
              <th>Giáo viên chủ nhiệm</th>
             <th>Hành động</th>
         </tr>
@@ -130,6 +131,7 @@
         <tr>
             <td>{{ lop.tenLop }}</td>
             <td>{{ lop.phongHoc.tenPhong if lop.phongHoc else 'Chưa gán' }}</td>
+            <td>{{ lop.siSoHienTai }}</td>
             <td>{{ lop.siSo }}</td>
             <td>{{ lop.giaoVienChuNhiem.hoTen if lop.giaoVienChuNhiem else 'Chưa gán' }}</td>
             <td>

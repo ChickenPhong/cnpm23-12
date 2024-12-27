@@ -1,24 +1,22 @@
 import hashlib
-import datetime
 
-from flask import redirect, flash
-from flask_admin import Admin, BaseView, expose
-from sqlalchemy import func
+from flask_admin import Admin
 from flask_wtf import FlaskForm
-from sqlalchemy.dialects.mysql import NVARCHAR
-from wtforms import IntegerField, StringField, validators
-from wtforms.fields.simple import TextAreaField
-from wtforms.widgets.core import TextArea
+from wtforms import IntegerField, StringField, validators, ValidationError
 
-from app import app, db, dao
+from app import app, db
 from flask_admin.contrib.sqla import ModelView
 from app.models import NhanVien, HocSinh, DanhSachLop, GiaoVienDayHoc, MonHoc, GiaoVien, PhongHoc, QuyDinh, HocKy
 
 admin = Admin(app=app, name='Người Quản Trị', template_mode='bootstrap4')
 
+def validate_min_age(form, field):
+    if form.max_age.data and field.data > form.max_age.data:
+        raise ValidationError('Tuổi tối thiểu không được lớn hơn tuổi tối đa.')
+
 class QuiDinhForm(FlaskForm):
-    min_age = IntegerField('Tuổi thấp nhất', validators=[validators.NumberRange(min=1)])
-    max_age = IntegerField('Tuổi cao nhất', validators=[validators.NumberRange(min=1)])
+    min_age = IntegerField('Tuổi tối thiểu', validators=[validators.NumberRange(min=1), validate_min_age])
+    max_age = IntegerField('Tuổi tối đa', validators=[validators.NumberRange(min=1)])
     si_so = IntegerField('Sĩ số', validators=[validators.NumberRange(min=1)])
     so_cot_15p = IntegerField('Số cột 15p', validators=[validators.NumberRange(min=1)])
     so_cot_1tiet = IntegerField('Số cột 1 tiết', validators=[validators.NumberRange(min=1)])
@@ -28,8 +26,8 @@ class QuiDinhView(ModelView):
     form_columns = ['min_age', 'max_age', 'si_so', 'so_cot_15p', 'so_cot_1tiet', 'so_cot_thi']
     column_list = ['min_age', 'max_age', 'si_so', 'so_cot_15p', 'so_cot_1tiet', 'so_cot_thi']
     column_labels = {
-        'min_age': 'Tuổi thấp nhất',
-        'max_age': 'Tuổi cao nhất',
+        'min_age': 'Tuổi tối thiểu',
+        'max_age': 'Tuổi tối đa',
         'si_so': 'Sĩ số',
         'so_cot_15p': 'Số cột 15p',
         'so_cot_1tiet': 'Số cột 1 tiết',
@@ -177,14 +175,15 @@ class DanhSachLopView(ModelView):
     column_searchable_list = ['giaoVienChuNhiem.hoTen']
     column_filters = ['tenLop', 'hocKy.namHoc']
 
-    # def edit_form(self, obj=None):
-    #     form = super(DanhSachLopView, self).edit_form(obj)
-    #     current_year = datetime.datetime.now().year
-    #     # Lọc các học kỳ của năm hiện tại
-    #     form.hocKy.query_factory = lambda: HocKy.query.filter(
-    #         func.substr(HocKy.namHoc, 1, 4) == str(current_year)
-    #     ).all()
-    #     return form
+    def edit_form(self, obj=None):
+        form = super(DanhSachLopView, self).edit_form(obj)
+        hoc_ky_moi = HocKy.query.order_by(HocKy.namHoc.desc()).limit(2).all()
+
+        if hoc_ky_moi:
+            hk_ids = [hk.idHocKy for hk in hoc_ky_moi]
+            # Lọc các học kỳ trong form chỉ giữ lại 2 học kỳ mới nhất.
+            form.hocKy.query_factory = lambda: HocKy.query.filter(HocKy.idHocKy.in_(hk_ids))
+        return form
 
     def get_query(self):
         return self.session.query(self.model).order_by(self.model.active.desc(), self.model.tenLop)

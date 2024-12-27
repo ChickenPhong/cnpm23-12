@@ -158,7 +158,6 @@ class PhongHoc(db.Model):
 
 
 class DanhSachLop(db.Model):
-
     maDsLop = Column(Integer, primary_key=True, autoincrement=True)
     idPhongHoc = Column(Integer, ForeignKey(PhongHoc.idPhongHoc),unique=True, nullable=True)
     tenLop = Column(String(50),nullable=True)

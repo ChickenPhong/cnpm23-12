@@ -79,25 +79,17 @@ def kiem_tra_tuoi(taikhoan):
 @app.route('/nhan-vien/<taikhoan>/luu-hoc-sinh', methods=['POST'])
 def luu_hoc_sinh(taikhoan):
     try:
-        flag = False
         taikhoan = session.get('taikhoan')
         so_dien_thoai = request.form.get('soDienThoai')
         ngay_sinh = request.form.get('ngaySinh')
         if len(so_dien_thoai) != 10 or not so_dien_thoai.isdigit():
             flash("Số điện thoại không hợp lệ. Vui lòng nhập đúng 10 số.", "error")
             return render_template('nhap_thong_tin_hoc_sinh.html', ngay_sinh=ngay_sinh, taikhoan=taikhoan)
-
         ho_ten = request.form.get('hoTen')
         gioi_tinh = request.form.get('gioiTinh')  # Nam = 1, Nữ = 0
-
         khoi = request.form.get('khoi')
         dia_chi = request.form.get('diaChi')
-
         email = request.form.get('email')
-
-        # Kiểm tra số điện thoại
-
-
         # Tạo đối tượng học sinh
         hoc_sinh = HocSinh(
             hoTen=ho_ten,
@@ -117,7 +109,6 @@ def luu_hoc_sinh(taikhoan):
         db.session.rollback()
         flash(f"Email đã tồn tại. Vui lòng nhập lại!", "error")
         return render_template('nhap_thong_tin_hoc_sinh.html', ngay_sinh=ngay_sinh, taikhoan=taikhoan)
-
 
 @app.route('/nhan-vien/<taikhoan>/danh-sach-lop')
 def show_ds_lop(taikhoan):
@@ -145,7 +136,6 @@ def create_auto_classes():
                 grade_groups["11"].append(student)
             elif student.khoi == "Khối 12":
                 grade_groups["12"].append(student)
-
         ds_giao_vien = dao.get_ds_gv()
         giao_vien_by_mon = {mon.idMonHoc: [] for mon in MonHoc.query.all()}
         for gv in ds_giao_vien:
@@ -175,7 +165,6 @@ def create_auto_classes():
                 db.session.add(giao_vien_day_hoc)
 
                 mon_con_lai = [mon for mon in MonHoc.query.all() if mon.idMonHoc != gv_chu_nhiem.idMonHoc]
-
                 # Gán giáo viên cho các môn học còn thiếu
                 for mon in mon_con_lai:
                     ds_gv_theo_mon = giao_vien_by_mon[mon.idMonHoc]
@@ -202,7 +191,6 @@ def sua_ds_lop(id,taikhoan):
     session['taikhoan'] = taikhoan
     lop = dao.get_class_by_id(id)
     list_hs = dao.get_ds_hs_by_ma_lop(lop.maDsLop)
-
     # Lấy danh sách phòng học chưa được chọn
     list_phong = dao.get_ds_phong()
     list_phong_da_chon = {p.idPhongHoc for p in DanhSachLop.query.filter(DanhSachLop.idPhongHoc != None)}
@@ -225,6 +213,9 @@ def sua_ds_lop(id,taikhoan):
 def them_hoc_sinh(id):
     taikhoan = session.get('taikhoan')
     lop = dao.get_class_by_id(id)
+    if lop.siSoHienTai == lop.siSo:
+        flash("Sĩ số hiện tại đã bằng sĩ số lớp!", "danger")
+        return redirect(f'/nhan-vien/{taikhoan}/danh-sach-lop/sua/{lop.maDsLop}')
     ds_hs_chua_lop = HocSinh.query.filter(HocSinh.maDsLop==None , HocSinh.khoi==lop.khoi)
     if request.method == 'POST':
         try:
@@ -248,14 +239,13 @@ def them_hoc_sinh(id):
                 hoc_sinh.maDsLop = id
                 db.session.add(hoc_sinh)
             db.session.commit()
-
             flash(f"Đã thêm {so_hoc_sinh_them} học sinh vào lớp!", "success")
             return redirect(f'/nhan-vien/{taikhoan}/danh-sach-lop/sua/{id}')
         except Exception as e:
             db.session.rollback()
             flash(f"Lỗi khi thêm học sinh: {str(e)}", "danger")
             return redirect(request.url)
-    return render_template('them_hoc_sinh.html', danh_sach_hoc_sinh=ds_hs_chua_lop, lop=lop)
+    return render_template('them_hoc_sinh.html', danh_sach_hoc_sinh=ds_hs_chua_lop, lop=lop, taikhoan=taikhoan)
 
 @app.route('/xoa-hoc-sinh', methods=['POST'])
 def xoa_hoc_sinh():
@@ -273,47 +263,9 @@ def xoa_hoc_sinh():
     flash('Không nhận được ID học sinh để xóa!', 'danger')
     return redirect(url_for('show_ds_lop'))
 
-@app.route('/thong-ke-bao-cao', methods=['GET', 'POST'])
-def thong_ke_bao_cao():
-    try:
-        nam_hoc_moi_nhat = db.session.query(HocKy.namHoc).order_by(HocKy.namHoc.desc()).first()
-        danh_sach_hoc_ky = HocKy.query.filter_by(namHoc=nam_hoc_moi_nhat.namHoc).order_by(HocKy.hocKy).all()
-        if request.method == 'POST':
-            khoi_lop = request.form.get('khoiLop')
-            mon_hoc_id = request.form.get('monHoc')
-            hoc_ky_id = request.form.get('hocKy')
-            danh_sach_khoi_lop = DanhSachLop.query.filter_by(khoi=khoi_lop, active = True)
-            data = []
-
-            for lop in danh_sach_khoi_lop:
-                ds_hoc_sinh = lop.hocSinhs
-                si_so = len(ds_hoc_sinh)
-                so_luong_dat = 0
-                for hs in ds_hoc_sinh:
-                    diem_tb_mon = dao.tinh_diem_tb_mon(hs.idHocSinh,hoc_ky_id,mon_hoc_id)
-                    if diem_tb_mon is not None and diem_tb_mon>=5:
-                        so_luong_dat+=1
-
-                ty_le = round((so_luong_dat / si_so) * 100, 2) if si_so > 0 else 0
-
-                # Thêm dữ liệu vào mảng data
-                data.append({
-                    "lop": lop.tenLop,
-                    "si_so": si_so,
-                    "so_luong_dat": so_luong_dat,
-                    "ty_le": ty_le
-                })
-            return render_template('thong_ke_bao_cao.html',data=data,danh_sach_mon_hoc=dao.get_ds_mon(),
-                    danh_sach_hoc_ky=danh_sach_hoc_ky,enumerate=enumerate)
-        return render_template('thong_ke_bao_cao.html',danh_sach_mon_hoc=dao.get_ds_mon(),danh_sach_hoc_ky=danh_sach_hoc_ky)
-    except Exception as e:
-        flash(f"Đã xảy ra lỗi: {str(e)}", "danger")
-        return redirect('/admin')
-
 @app.route('/giao-vien/<taikhoan>/danh-sach-lop-day')
 def danh_sach_lop_day(taikhoan):
     nam_hoc_moi_nhat = db.session.query(HocKy.namHoc).order_by(HocKy.namHoc.desc()).first()
-
     # Lấy danh sách lớp mà giáo viên đang dạy trong năm học mới nhất
     danh_sach_lop_ids = db.session.query(GiaoVienDayHoc.idDsLop).filter(
         GiaoVienDayHoc.idGiaoVien == current_user.id,
@@ -321,108 +273,17 @@ def danh_sach_lop_day(taikhoan):
             db.session.query(HocKy.idHocKy).filter(HocKy.namHoc == nam_hoc_moi_nhat.namHoc)
         )
     ).distinct()
-
     danh_sach_lop = DanhSachLop.query.filter(DanhSachLop.maDsLop.in_(danh_sach_lop_ids)).all()
     return render_template('danh_sach_lop_gv.html', danh_sach_lop=danh_sach_lop, taikhoan=taikhoan)
-
-@app.route('/giao-vien/<taikhoan>/lop-chu-nhiem')
-def danh_sach_lop_chu_nhiem(taikhoan):
-    session['taikhoan'] = taikhoan
-    lop_chu_nhiem = DanhSachLop.query.filter_by(giaoVienChuNhiem_id=current_user.id,active=True).first()
-    if lop_chu_nhiem:
-        # Lấy năm học mới nhất
-        nam_hoc_moi_nhat = db.session.query(HocKy.namHoc).order_by(HocKy.namHoc.desc()).first()
-
-        # Lấy danh sách học kỳ thuộc năm học mới nhất
-        danh_sach_hoc_ky = HocKy.query.filter_by(namHoc=nam_hoc_moi_nhat.namHoc).order_by(HocKy.hocKy).all()
-
-        # Lấy học kỳ được chọn hoặc mặc định là học kỳ hiện tại của lớp
-        hoc_ky_id = request.args.get('hocKy', lop_chu_nhiem.hocKy_id, type=int)
-        hoc_ky = dao.get_hk_by_id(hoc_ky_id)
-
-        danh_sach_hoc_sinh = dao.get_ds_hs_by_ma_lop(lop_chu_nhiem.maDsLop)
-        danh_sach_mon_hoc = dao.get_ds_mon()
-
-        # Lấy bảng điểm theo môn và loại điểm
-        bang_diem = {}
-        for hs in danh_sach_hoc_sinh:
-            bang_diem[hs.idHocSinh] = {
-                "15p": {mon.tenMonHoc: None for mon in danh_sach_mon_hoc},
-                "1_tiet": {mon.tenMonHoc: None for mon in danh_sach_mon_hoc},
-                "thi": {mon.tenMonHoc: None for mon in danh_sach_mon_hoc},
-                "tb_mon": {mon.tenMonHoc: None for mon in danh_sach_mon_hoc}  # Thêm điểm trung bình môn
-            }
-            diem_cua_hoc_sinh = BangDiem.query.filter_by(hocSinh_id=hs.idHocSinh, hocKy_id=hoc_ky_id).all()
-            for mon in danh_sach_mon_hoc:
-                ten_mon = mon.tenMonHoc
-                diem_hs_mon = {diem for diem in diem_cua_hoc_sinh if diem.monHoc_id.__eq__(mon.idMonHoc)}
-                ds_15p=[]
-                ds_1_tiet=[]
-                thi=[]
-                for diem in diem_hs_mon:
-                    if diem.loai_diem.startswith("15p"):
-                        ds_15p.append(diem.diem)
-                    elif diem.loai_diem.startswith("1_tiet"):
-                        ds_1_tiet.append(diem.diem)
-                    else:
-                        thi.append(diem.diem)
-                tb_15p = round(sum(ds_15p)/len(ds_15p),2) if len(ds_15p)>0 else None
-                tb_1Tiet = round(sum(ds_1_tiet)/len(ds_1_tiet),2) if len(ds_1_tiet)>0 else None
-                dThi = round(sum(thi)/len(thi),2) if len(thi)>0 else None
-                bang_diem[hs.idHocSinh]["15p"][ten_mon] = tb_15p
-                bang_diem[hs.idHocSinh]["1_tiet"][ten_mon] = tb_1Tiet
-                bang_diem[hs.idHocSinh]["thi"][ten_mon] = dThi
-                if (bang_diem[hs.idHocSinh]["15p"][ten_mon] is not None and bang_diem[hs.idHocSinh]["1_tiet"][ten_mon] is not None
-                    and bang_diem[hs.idHocSinh]["thi"][ten_mon] is not None):
-                    tb_mon = (
-                        bang_diem[hs.idHocSinh]["15p"][ten_mon]
-                        + bang_diem[hs.idHocSinh]["1_tiet"][ten_mon] * 2
-                        + bang_diem[hs.idHocSinh]["thi"][ten_mon] * 3
-                    ) / 6
-                    bang_diem[hs.idHocSinh]["tb_mon"][ten_mon] = round(tb_mon, 2)
-            # Kiểm tra điều kiện nhập đủ điểm Toán, Văn, Anh trước khi tính điểm trung bình toàn bộ môn
-            mon_can_thiet = ["Toán", "Văn", "Anh"]
-            if all(
-                bang_diem[hs.idHocSinh]["tb_mon"].get(mon) is not None
-                for mon in mon_can_thiet):
-                diem_tb_cac_mon = [
-                    bang_diem[hs.idHocSinh]["tb_mon"][mon.tenMonHoc]
-                    for mon in danh_sach_mon_hoc
-                    if bang_diem[hs.idHocSinh]["tb_mon"][mon.tenMonHoc] is not None
-                ]
-                hs.diem_trung_binh = round(sum(diem_tb_cac_mon) / len(diem_tb_cac_mon), 2) if diem_tb_cac_mon else None
-
-                # Xếp loại
-                diem_toan = bang_diem[hs.idHocSinh]["tb_mon"].get("Toán", 0)
-                diem_van = bang_diem[hs.idHocSinh]["tb_mon"].get("Văn", 0)
-                if (diem_toan >= 8.0 or diem_van >= 8.0) and all(d >= 6.5 for d in diem_tb_cac_mon):
-                    hs.xep_loai = "Giỏi"
-                elif (diem_toan >= 6.5 or diem_van >= 6.5) and all(d >= 5.0 for d in diem_tb_cac_mon):
-                    hs.xep_loai = "Khá"
-                elif (diem_toan >= 3.5 or diem_van >= 3.5) and all(d >= 2.0 for d in diem_tb_cac_mon):
-                    hs.xep_loai = "Yếu"
-                else:
-                    hs.xep_loai = "Kém"
-            else:
-                # Nếu chưa nhập đủ điểm thì để trống
-                hs.diem_trung_binh = None
-                hs.xep_loai = None
-        return render_template('danh_sach_lop_chu_nhiem.html',lop=lop_chu_nhiem,danh_sach_hoc_sinh=danh_sach_hoc_sinh,
-            danh_sach_mon_hoc=danh_sach_mon_hoc,bang_diem=bang_diem,hoc_ky=hoc_ky,danh_sach_hoc_ky=danh_sach_hoc_ky,taikhoan=taikhoan)
-    else:
-        flash("Hiện tại bạn không có chủ nhệm lớp nào!", "warning")
-        return redirect(f'/giao-vien/{taikhoan}')
 
 @app.route('/giao-vien/<taikhoan>/danh-sach-lop-day/<int:lop_id>/nhap-diem', methods=['GET', 'POST'])
 def nhap_diem(lop_id, taikhoan):
     lop = DanhSachLop.query.get(lop_id)
     danh_sach_hoc_sinh = dao.get_ds_hs_by_ma_lop(lop_id)
-
     gv = dao.get_gv_by_id(current_user.id)
     giao_vien_id = gv.id
     mon_hoc = dao.get_mon_by_id(gv.idMonHoc)
     hoc_ky = dao.get_hk_by_id(lop.hocKy_id)
-
     so_cot_15p = mon_hoc.soCot15p
     so_cot_1_tiet = mon_hoc.soCot1Tiet
 
@@ -449,7 +310,6 @@ def nhap_diem(lop_id, taikhoan):
             loai_diem='thi'
         ).first()
         hoc_sinh.diem_thi = diem_thi.diem if diem_thi else None
-
     if request.method == 'POST':
         try:
             for i, hoc_sinh in enumerate(danh_sach_hoc_sinh):
@@ -559,7 +419,6 @@ def xem_lop(lop_id, taikhoan):
             hocKy_id=hoc_ky.idHocKy,
             loai_diem='thi'
         ).first()
-
         # Tính trung bình 15 phút và 1 tiết
         hoc_sinh.tb_15p = round(sum(diem_15p) / len(diem_15p), 2) if len(diem_15p) > 0 else ""
         hoc_sinh.tb_1_tiet = round(sum(diem_1_tiet) / len(diem_1_tiet), 2) if len(diem_1_tiet) > 0 else ""
@@ -591,12 +450,116 @@ def chuyen_diem_hoc_ky():
     flash('Đã chuyển điểm sang học kỳ tiếp theo!', 'success')
     return redirect('/admin')
 
+@app.route('/giao-vien/<taikhoan>/lop-chu-nhiem')
+def danh_sach_lop_chu_nhiem(taikhoan):
+    session['taikhoan'] = taikhoan
+    lop_chu_nhiem = DanhSachLop.query.filter_by(giaoVienChuNhiem_id=current_user.id,active=True).first()
+    if lop_chu_nhiem:
+        danh_sach_hoc_sinh = dao.get_ds_hs_by_ma_lop(lop_chu_nhiem.maDsLop)
+        danh_sach_mon_hoc = dao.get_ds_mon()
+        nam_hoc_moi_nhat = db.session.query(HocKy.namHoc).order_by(HocKy.namHoc.desc()).first()
+        danh_sach_hoc_ky = HocKy.query.filter_by(namHoc=nam_hoc_moi_nhat.namHoc).order_by(HocKy.hocKy).all()
+
+        # Lấy học kỳ được chọn hoặc mặc định là học kỳ hiện tại của lớp
+        hoc_ky_id = request.args.get('hocKy', lop_chu_nhiem.hocKy_id, type=int)
+        hoc_ky = dao.get_hk_by_id(hoc_ky_id)
+
+        # Lấy bảng điểm theo môn và loại điểm
+        bang_diem = {}
+        for hs in danh_sach_hoc_sinh:
+            bang_diem[hs.idHocSinh] = {
+                "15p": {mon.tenMonHoc: None for mon in danh_sach_mon_hoc},
+                "1_tiet": {mon.tenMonHoc: None for mon in danh_sach_mon_hoc},
+                "thi": {mon.tenMonHoc: None for mon in danh_sach_mon_hoc},
+                "tb_mon": {mon.tenMonHoc: None for mon in danh_sach_mon_hoc}  # Thêm điểm trung bình môn
+            }
+            diem_cua_hoc_sinh = BangDiem.query.filter_by(hocSinh_id=hs.idHocSinh, hocKy_id=hoc_ky_id).all()
+            for mon in danh_sach_mon_hoc:
+                ten_mon = mon.tenMonHoc
+                diem_hs_mon = {diem for diem in diem_cua_hoc_sinh if diem.monHoc_id.__eq__(mon.idMonHoc)}
+                ds_15p=[]
+                ds_1_tiet=[]
+                thi=[]
+                for diem in diem_hs_mon:
+                    if diem.loai_diem.startswith("15p"):
+                        ds_15p.append(diem.diem)
+                    elif diem.loai_diem.startswith("1_tiet"):
+                        ds_1_tiet.append(diem.diem)
+                    else:
+                        thi.append(diem.diem)
+                tb_15p = round(sum(ds_15p)/len(ds_15p),2) if len(ds_15p)>0 else None
+                tb_1Tiet = round(sum(ds_1_tiet)/len(ds_1_tiet),2) if len(ds_1_tiet)>0 else None
+                dThi = round(sum(thi)/len(thi),2) if len(thi)>0 else None
+                bang_diem[hs.idHocSinh]["15p"][ten_mon] = tb_15p
+                bang_diem[hs.idHocSinh]["1_tiet"][ten_mon] = tb_1Tiet
+                bang_diem[hs.idHocSinh]["thi"][ten_mon] = dThi
+                if (bang_diem[hs.idHocSinh]["15p"][ten_mon] is not None and bang_diem[hs.idHocSinh]["1_tiet"][ten_mon] is not None
+                    and bang_diem[hs.idHocSinh]["thi"][ten_mon] is not None):
+                    tb_mon = (
+                        bang_diem[hs.idHocSinh]["15p"][ten_mon]
+                        + bang_diem[hs.idHocSinh]["1_tiet"][ten_mon] * 2
+                        + bang_diem[hs.idHocSinh]["thi"][ten_mon] * 3
+                    ) / 6
+                    bang_diem[hs.idHocSinh]["tb_mon"][ten_mon] = round(tb_mon, 2)
+            # Kiểm tra điều kiện nhập đủ điểm Toán, Văn, Anh trước khi tính điểm trung bình toàn bộ môn
+            mon_can_thiet = ["Toán", "Văn", "Anh"]
+            if all(
+                bang_diem[hs.idHocSinh]["tb_mon"].get(mon) is not None
+                for mon in mon_can_thiet):
+                diem_tb_cac_mon = [
+                    bang_diem[hs.idHocSinh]["tb_mon"][mon.tenMonHoc]
+                    for mon in danh_sach_mon_hoc
+                    if bang_diem[hs.idHocSinh]["tb_mon"][mon.tenMonHoc] is not None
+                ]
+                hs.diem_trung_binh = round(sum(diem_tb_cac_mon) / len(diem_tb_cac_mon), 2) if diem_tb_cac_mon else None
+                # Xếp loại
+                diem_toan = bang_diem[hs.idHocSinh]["tb_mon"].get("Toán", 0)
+                diem_van = bang_diem[hs.idHocSinh]["tb_mon"].get("Văn", 0)
+                if (diem_toan >= 8.0 or diem_van >= 8.0) and all(d >= 6.5 for d in diem_tb_cac_mon):
+                    hs.xep_loai = "Giỏi"
+                elif (diem_toan >= 6.5 or diem_van >= 6.5) and all(d >= 5.0 for d in diem_tb_cac_mon):
+                    hs.xep_loai = "Khá"
+                elif (diem_toan >= 3.5 or diem_van >= 3.5) and all(d >= 2.0 for d in diem_tb_cac_mon):
+                    hs.xep_loai = "Yếu"
+                else:
+                    hs.xep_loai = "Kém"
+            else:
+                # Nếu chưa nhập đủ điểm thì để trống
+                hs.diem_trung_binh = None
+                hs.xep_loai = None
+        return render_template('danh_sach_lop_chu_nhiem.html',lop=lop_chu_nhiem,danh_sach_hoc_sinh=danh_sach_hoc_sinh,
+            danh_sach_mon_hoc=danh_sach_mon_hoc,bang_diem=bang_diem,hoc_ky=hoc_ky,danh_sach_hoc_ky=danh_sach_hoc_ky,taikhoan=taikhoan)
+    else:
+        flash("Hiện tại bạn không có chủ nhệm lớp nào!", "warning")
+        return redirect(f'/giao-vien/{taikhoan}')
+
+@app.route('/giao-vien/<taikhoan>/lop-chu-nhiem/bang-diem-tong-ket', methods=['GET'])
+def bang_diem_tong_ket(taikhoan):
+    gv = GiaoVien.query.get(current_user.id)
+    lop_chu_nhiem = DanhSachLop.query.filter_by(giaoVienChuNhiem_id=gv.id, active=True).first()
+    danh_sach_hoc_sinh = HocSinh.query.filter_by(maDsLop=lop_chu_nhiem.maDsLop).all()
+    bang_diem_tong_ket = []
+
+    for hs in danh_sach_hoc_sinh:
+        hoc_ky_moi_nhat = HocKy.query.order_by(HocKy.idHocKy.desc()).first()
+        hk_id = hoc_ky_moi_nhat.idHocKy
+        diem_tb_hk1 = BangDiemTB.query.filter_by(hocSinh_id=hs.idHocSinh, hocKy_id=hk_id-1).first()
+        diem_tb_hk2 = BangDiemTB.query.filter_by(hocSinh_id=hs.idHocSinh, hocKy_id=hk_id).first()
+
+        bang_diem_tong_ket.append({
+            'ho_ten': hs.hoTen,
+            'lop': lop_chu_nhiem.tenLop if lop_chu_nhiem else "",
+            'diem_tb_hk1': diem_tb_hk1.diem_trung_binh if diem_tb_hk1 else "",
+            'diem_tb_hk2': diem_tb_hk2.diem_trung_binh if diem_tb_hk2 else "",
+        })
+    return render_template('bang_diem_tong_ket.html',bang_diem_tong_ket=bang_diem_tong_ket,lop=lop_chu_nhiem,
+        enumerate=enumerate,taikhoan=taikhoan)
+
 @app.route('/xac-nhan-bang-diem', methods=['POST'])
 def xac_nhan_bang_diem():
     taikhoan = session.get('taikhoan')
     ma_ds_lop = request.form.get('maDsLop')
     lop = dao.get_class_by_id(ma_ds_lop)
-
     danh_sach_hoc_sinh = dao.get_ds_hs_by_ma_lop(ma_ds_lop)
     hoc_ky_id = lop.hocKy_id
 
@@ -617,25 +580,40 @@ def xac_nhan_bang_diem():
     flash("Bảng điểm đã được xác nhận và lưu thành công!", "success")
     return redirect(f'/giao-vien/{taikhoan}/lop-chu-nhiem')
 
-@app.route('/giao-vien/<taikhoan>/lop-chu-nhiem/bang-diem-tong-ket', methods=['GET'])
-def bang_diem_tong_ket(taikhoan):
-    gv = GiaoVien.query.get(current_user.id)
-    lop_chu_nhiem = DanhSachLop.query.filter_by(giaoVienChuNhiem_id=gv.id).first()
-    danh_sach_hoc_sinh = HocSinh.query.filter_by(maDsLop=lop_chu_nhiem.maDsLop).all()
-    bang_diem_tong_ket = []
+@app.route('/thong-ke-bao-cao', methods=['GET', 'POST'])
+def thong_ke_bao_cao():
+    try:
+        nam_hoc_moi_nhat = db.session.query(HocKy.namHoc).order_by(HocKy.namHoc.desc()).first()
+        danh_sach_hoc_ky = HocKy.query.filter_by(namHoc=nam_hoc_moi_nhat.namHoc).order_by(HocKy.hocKy).all()
+        if request.method == 'POST':
+            khoi_lop = request.form.get('khoiLop')
+            mon_hoc_id = request.form.get('monHoc')
+            hoc_ky_id = request.form.get('hocKy')
+            danh_sach_khoi_lop = DanhSachLop.query.filter_by(khoi=khoi_lop, active = True)
+            data = []
 
-    for hs in danh_sach_hoc_sinh:
-        diem_tb_hk1 = BangDiemTB.query.filter_by(hocSinh_id=hs.idHocSinh, hocKy_id=1).first()
-        diem_tb_hk2 = BangDiemTB.query.filter_by(hocSinh_id=hs.idHocSinh, hocKy_id=2).first()
-
-        bang_diem_tong_ket.append({
-            'ho_ten': hs.hoTen,
-            'lop': lop_chu_nhiem.tenLop if lop_chu_nhiem else "",
-            'diem_tb_hk1': diem_tb_hk1.diem_trung_binh if diem_tb_hk1 else "",
-            'diem_tb_hk2': diem_tb_hk2.diem_trung_binh if diem_tb_hk2 else "",
-        })
-    return render_template('bang_diem_tong_ket.html',bang_diem_tong_ket=bang_diem_tong_ket,lop=lop_chu_nhiem,
-        enumerate=enumerate,taikhoan=taikhoan)
+            for lop in danh_sach_khoi_lop:
+                ds_hoc_sinh = lop.hocSinhs
+                si_so = len(ds_hoc_sinh)
+                so_luong_dat = 0
+                for hs in ds_hoc_sinh:
+                    diem_tb_mon = dao.tinh_diem_tb_mon(hs.idHocSinh,hoc_ky_id,mon_hoc_id)
+                    if diem_tb_mon is not None and diem_tb_mon>=5:
+                        so_luong_dat+=1
+                ty_le = round((so_luong_dat / si_so) * 100, 2) if si_so > 0 else 0
+                # Thêm dữ liệu vào mảng data
+                data.append({
+                    "lop": lop.tenLop,
+                    "si_so": si_so,
+                    "so_luong_dat": so_luong_dat,
+                    "ty_le": ty_le
+                })
+            return render_template('thong_ke_bao_cao.html',data=data,danh_sach_mon_hoc=dao.get_ds_mon(),
+                    danh_sach_hoc_ky=danh_sach_hoc_ky,enumerate=enumerate)
+        return render_template('thong_ke_bao_cao.html',danh_sach_mon_hoc=dao.get_ds_mon(),danh_sach_hoc_ky=danh_sach_hoc_ky)
+    except Exception as e:
+        flash(f"Đã xảy ra lỗi: {str(e)}", "danger")
+        return redirect('/admin')
 
 @app.route('/ket-thuc-nam-hoc', methods=['POST'])
 def ket_thuc_nam_hoc():
@@ -691,7 +669,6 @@ def ket_thuc_nam_hoc():
                                 hs.khoi = ""
             lop.idPhongHoc = None
             lop.active = False
-
         nam_hoc_hien_tai = hoc_ky.namHoc
         nam_hoc_bat_dau, nam_hoc_ket_thuc = map(int, nam_hoc_hien_tai.split('-'))
         nam_hoc_moi = f"{nam_hoc_bat_dau + 1}-{nam_hoc_ket_thuc + 1}"

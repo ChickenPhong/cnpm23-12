@@ -25,7 +25,7 @@
     <form method="POST" action="/nhan-vien/{{taikhoan}}/danh-sach-lop/sua/{{ lop.maDsLop }}">
         <div class="mb-3">
             <label for="tenLop" class="form-label">Tên lớp</label>
-            <input type="text" class="form-control" id="tenLop" name="tenLop" value="{{lop.tenLop}}">
+            <input type="text" class="form-control" id="tenLop" name="tenLop" value="{{lop.tenLop}}" disabled>
         </div>
 
         <div class="mb-3">
@@ -46,7 +46,12 @@
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Sĩ số</label>
+            <label class="form-label">Sĩ số hiện tại</label>
+            <input type="text" class="form-control" value="{{lop.siSoHienTai}}" disabled>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Sĩ số lớp</label>
             <input type="text" class="form-control" value="{{lop.siSo}}" disabled>
         </div>
 

@@ -24,13 +24,13 @@
         }
 
         th {
-            background-color: #4CAF50;
+            background-color: #1c2b4a;
             color: white;
         }
 
         button {
             padding: 10px 15px;
-            background-color: #4CAF50;
+            background-color: #1c2b4a;
             color: white;
             border: none;
             cursor: pointer;
@@ -48,17 +48,17 @@
             display: inline-block;
             padding: 8px 20px;
             background-color: transparent;
-            color: #4CAF50;
+            color: #1c2b4a;
             font-size: 16px;
             font-weight: bold;
-            border: 2px solid #4CAF50;
+            border: 2px solid #1c2b4a;
             border-radius: 5px;
             text-decoration: none;
             transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
         }
 
         .back-button:hover {
-            background-color: #4CAF50;
+            background-color: #1c2b4a;
             color: white;
             transform: scale(1.05);
         }
@@ -86,12 +86,18 @@
             }
 
             body {
-                background-color: white;
+                background-color: white; /* Nền trắng để in ra */
+                color: black; /* Chữ màu đen */
             }
 
             table th {
-                background-color: #4CAF50 !important; /* Bật màu nền khi in */
-                -webkit-print-color-adjust: exact; /* Đảm bảo in đúng màu */
+                background-color: transparent !important; /* Loại bỏ màu nền */
+                color: black !important; /* Đảm bảo tiêu đề bảng có màu đen */
+                -webkit-print-color-adjust: exact; /* Đảm bảo màu sắc hiển thị đúng */
+            }
+
+            table td {
+                color: black !important; /* Đảm bảo chữ trong các ô dữ liệu là màu đen */
             }
         }
     </style>
