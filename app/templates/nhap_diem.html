@@ -8,11 +8,11 @@
         body { font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333; padding: 20px; }
         table { width: 100%; border-collapse: collapse; margin: 20px 0; }
         th, td { text-align: center; padding: 10px; border: 1px solid #ddd; }
-        button { padding: 10px 20px; border: none; border-radius: 5px; background-color: #4CAF50; color: white; cursor: pointer; }
-        button:hover { background-color: #45a049; }
-        h1, h2 { text-align: center; color: #4CAF50; }
+        button { padding: 10px 20px; border: none; border-radius: 5px; background-color: #1c2b4a; color: white; cursor: pointer; }
+        button:hover { background-color: #a1b3c6; }
+        h1, h2 { text-align: center; color: #1c2b4a; }
         a {
-            color: #4CAF50;
+            color: #1c2b4a;
             text-decoration: none;
         }
     </style>
@@ -43,17 +43,17 @@
                     <td>{{ hoc_sinh.hoTen }}</td>
                     {% for i in range(so_cot_15p) %}
                     <td>
-                        <input type="number" name="diem_15p_{{ i }}[]" step="0.25" min="0" max="10"
+                        <input type="number" name="diem_15p_{{ i }}[]" step="0.1" min="0" max="10"
                                value="{{ hoc_sinh.diem_15p[i] if hoc_sinh.diem_15p and i < hoc_sinh.diem_15p|length else '' }}">
                     </td>
                     {% endfor %}
                     {% for i in range(so_cot_1_tiet) %}
                     <td>
-                        <input type="number" name="diem_1_tiet_{{ i }}[]" step="0.25" min="0" max="10"
+                        <input type="number" name="diem_1_tiet_{{ i }}[]" step="0.1" min="0" max="10"
                                value="{{ hoc_sinh.diem_1_tiet[i] if hoc_sinh.diem_1_tiet and i < hoc_sinh.diem_1_tiet|length else '' }}">
                     </td>
                     {% endfor %}
-                    <td><input type="number" name="diem_thi[]" step="0.25" min="0" max="10" value="{{ hoc_sinh.diem_thi }}"></td>
+                    <td><input type="number" name="diem_thi[]" step="0.1" min="0" max="10" value="{{ hoc_sinh.diem_thi }}"></td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -76,31 +76,48 @@ def kiem_tra_tuoi(taikhoan):
             return redirect(f'/nhan-vien/{taikhoan}')
     return "Không nhận được thông tin ngày sinh!"
 
-@app.route('/luu-hoc-sinh', methods=['POST'])
-def luu_hoc_sinh():
-    taikhoan = session.get('taikhoan')
-    ho_ten = request.form.get('hoTen')
-    gioi_tinh = request.form.get('gioiTinh')  # Nam = 1, Nữ = 0
-    ngay_sinh = request.form.get('ngaySinh')
-    khoi = request.form.get('khoi')
-    dia_chi = request.form.get('diaChi')
-    so_dien_thoai = request.form.get('soDienThoai')
-    email = request.form.get('email')
-    hoc_sinh = HocSinh(
-        hoTen=ho_ten,
-        gioiTinh=(gioi_tinh == '1'),
-        ngaySinh=datetime.strptime(ngay_sinh, "%Y-%m-%d").date(),
-        khoi=khoi,
-        diaChi=dia_chi,
-        SDT=so_dien_thoai,
-        eMail=email,
-        maDsLop=None
-    )
-    db.session.add(hoc_sinh)
-    db.session.commit()
+@app.route('/nhan-vien/<taikhoan>/luu-hoc-sinh', methods=['POST'])
+def luu_hoc_sinh(taikhoan):
+    try:
+        flag = False
+        taikhoan = session.get('taikhoan')
+        so_dien_thoai = request.form.get('soDienThoai')
+        ngay_sinh = request.form.get('ngaySinh')
+        if len(so_dien_thoai) != 10 or not so_dien_thoai.isdigit():
+            flash("Số điện thoại không hợp lệ. Vui lòng nhập đúng 10 số.", "error")
+            return render_template('nhap_thong_tin_hoc_sinh.html', ngay_sinh=ngay_sinh, taikhoan=taikhoan)
 
-    flash("Học sinh đã được lưu thành công!", "success")
-    return redirect(f"/nhan-vien/{taikhoan}")
+        ho_ten = request.form.get('hoTen')
+        gioi_tinh = request.form.get('gioiTinh')  # Nam = 1, Nữ = 0
+
+        khoi = request.form.get('khoi')
+        dia_chi = request.form.get('diaChi')
+
+        email = request.form.get('email')
+
+        # Kiểm tra số điện thoại
+
+
+        # Tạo đối tượng học sinh
+        hoc_sinh = HocSinh(
+            hoTen=ho_ten,
+            gioiTinh=(gioi_tinh == '1'),
+            ngaySinh=datetime.strptime(ngay_sinh, "%Y-%m-%d").date(),
+            khoi=khoi,
+            diaChi=dia_chi,
+            SDT=so_dien_thoai,
+            eMail=email,
+            maDsLop=None
+        )
+        db.session.add(hoc_sinh)
+        db.session.commit()
+        flash("Học sinh đã được lưu thành công!", "success")
+        return redirect(f"/nhan-vien/{taikhoan}")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Email đã tồn tại. Vui lòng nhập lại!", "error")
+        return render_template('nhap_thong_tin_hoc_sinh.html', ngay_sinh=ngay_sinh, taikhoan=taikhoan)
+
 
 @app.route('/nhan-vien/<taikhoan>/danh-sach-lop')
 def show_ds_lop(taikhoan):
@@ -623,10 +640,13 @@ def bang_diem_tong_ket(taikhoan):
 @app.route('/ket-thuc-nam-hoc', methods=['POST'])
 def ket_thuc_nam_hoc():
     try:
-        Ds_lop = DanhSachLop.query.filter_by(active=True).all()
+        ds_lop = DanhSachLop.query.filter_by(active=True).all()
+        if not ds_lop:
+            flash(f"Chưa bắt đầu năm học mới!", "danger")
+            return redirect('/admin')
         hoc_ky = HocKy.query.order_by(HocKy.idHocKy.desc()).first()
         idHocKy = hoc_ky.idHocKy
-        for lop in Ds_lop:
+        for lop in ds_lop:
             ds_hoc_sinh = lop.hocSinhs
             for hs in ds_hoc_sinh:
                 flag = True

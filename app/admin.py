@@ -177,14 +177,14 @@ class DanhSachLopView(ModelView):
     column_searchable_list = ['giaoVienChuNhiem.hoTen']
     column_filters = ['tenLop', 'hocKy.namHoc']
 
-    def edit_form(self, obj=None):
-        form = super(DanhSachLopView, self).edit_form(obj)
-        current_year = datetime.datetime.now().year
-        # Lọc các học kỳ của năm hiện tại
-        form.hocKy.query_factory = lambda: HocKy.query.filter(
-            func.substr(HocKy.namHoc, 1, 4) == str(current_year)
-        ).all()
-        return form
+    # def edit_form(self, obj=None):
+    #     form = super(DanhSachLopView, self).edit_form(obj)
+    #     current_year = datetime.datetime.now().year
+    #     # Lọc các học kỳ của năm hiện tại
+    #     form.hocKy.query_factory = lambda: HocKy.query.filter(
+    #         func.substr(HocKy.namHoc, 1, 4) == str(current_year)
+    #     ).all()
+    #     return form
 
     def get_query(self):
         return self.session.query(self.model).order_by(self.model.active.desc(), self.model.tenLop)

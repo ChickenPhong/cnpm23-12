@@ -112,7 +112,7 @@ class HocSinh(db.Model):
     ngaySinh = Column(Date, nullable=False)
     khoi = Column(String(50), nullable=False)
     diaChi = Column(String(255), nullable=False)
-    SDT = Column(String(20), unique=True, nullable=False)
+    SDT = Column(String(20), nullable=False)
     eMail = Column(String(255), unique=True, nullable=False)
     maDsLop = Column(Integer, ForeignKey('danh_sach_lop.maDsLop'), nullable=True)
 
@@ -203,35 +203,20 @@ if __name__== '__main__':
         #              taiKhoan='admin', matKhau=str(hashlib.md5('123456'.encode('utf-8')).hexdigest()),
         #              vaiTro=UserRole.NGUOIQUANTRI)
         # db.session.add(u)
-        # db.session.commit()
-
+        # # db.session.commit()
+        #
         # quy_dinh_mac_dinh = QuyDinh(min_age=app.config["MIN_AGE"], max_age=app.config["MAX_AGE"],
         #     si_so=app.config["SI_SO"], so_cot_15p=5, so_cot_1tiet=3, so_cot_thi=1)
         # db.session.add(quy_dinh_mac_dinh)
-        # db.session.commit()
-
+        # # db.session.commit()
+        #
         # hk1 = HocKy(namHoc="2023-2024", hocKy="1")
         # hk2 = HocKy(namHoc="2023-2024", hocKy="2")
         # db.session.add_all([hk1,hk2])
-        # db.session.commit()
-
-        # kh1 = KhoiLop(tenKhoi="10")
-        # kh2 = KhoiLop(tenKhoi="11")
-        # kh3 = KhoiLop(tenKhoi="12")
+        # # db.session.commit()
         #
-        # ph1 = PhongHoc(tenPhong="Phòng 101")
-        # ph2 = PhongHoc(tenPhong="Phòng 102")
-        # ph3 = PhongHoc(tenPhong="Phòng 201")
         #
-        # # Liên kết phòng học với các khối lớp
-        # ph1.khoi_lops.extend([kh1, kh2])  # Phòng 101 được sử dụng bởi khối 10 và khối 11
-        # ph2.khoi_lops.append(kh1)  # Phòng 102 được sử dụng bởi khối 10
-        # ph3.khoi_lops.append(kh3)  # Phòng 201 được sử dụng bởi khối 12
-        #
-        # db.session.add_all([kh1, kh2, kh3, ph1, ph2, ph3])
-        # db.session.commit()
-
-        # Tạo nhân viên
+        # # Tạo nhân viên
         # nv = NhanVien(
         #     hoTen="Trần Quốc Phong",
         #     gioiTinh=True,
@@ -244,8 +229,8 @@ if __name__== '__main__':
         #     matKhau=str(hashlib.md5('123456'.encode('utf-8')).hexdigest())
         # )
         # db.session.add(nv)
-        # db.session.commit()
-
+        # # db.session.commit()
+        #
         # m1 = MonHoc(tenMonHoc = "Văn", soCot15p = 5, soCot1Tiet = 3, soCotThi = 1)
         # m2 = MonHoc(tenMonHoc="Toán", soCot15p=5, soCot1Tiet=3, soCotThi=1)
         # m3 = MonHoc(tenMonHoc="Anh", soCot15p=3, soCot1Tiet=2, soCotThi=1)

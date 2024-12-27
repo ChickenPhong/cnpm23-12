@@ -22,7 +22,7 @@
     {% endwith %}
 
     <h1 class="text-center">Nhập thông tin học sinh</h1>
-    <form method="POST" action="/luu-hoc-sinh">
+    <form method="POST" action="/nhan-vien/{{taikhoan}}/luu-hoc-sinh">
         <div class="mb-3">
             <label for="hoTen" class="form-label">Họ tên</label>
             <input type="text" class="form-control" id="hoTen" name="hoTen" required>
